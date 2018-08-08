@@ -31,16 +31,16 @@ defmodule U2FEx.Utils.ChallengeStore do
         {:reply, :ok, state}
       {:error, retval} ->
         Logger.error("Failed to store challenge for U2FEx. Reason: #{Atom.to_string(retval)}")
-        {:error, retval}
+        {:reply, {:error, retval}, state}
     end
   end
   def handle_call({:remove_challenge, username}, _from, state) do
     case remove_challenge(state, username) do
       {:ok, challenge} ->
-        {:reply, challenge, state}
+        {:reply, {:ok, challenge}, state}
       {:error, retval} ->
         Logger.error("Failed to retrieve challenge for U2FEx. Reason: #{Atom.to_string(retval)}")
-        {:error, retval}
+        {:reply, {:error, retval}, state}
     end
   end
 
@@ -70,8 +70,10 @@ defmodule U2FEx.Utils.ChallengeStore do
   defp remove_challenge(table, username) when is_binary(username) do
     case :ets.lookup(table, username) do
       [{_user, challenge}] ->
+        :ets.delete(table, username)
         {:ok, challenge}
       [{_user, challenge} | _rest] ->
+        :ets.delete(table, username)
         {:ok, challenge}
       [] ->
         {:error, :no_challenge_found}
