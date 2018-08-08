@@ -14,7 +14,8 @@ defmodule U2fEx do
   Verifies registration is complete by checking the challenge.
   """
   @spec finish_registration(username :: String.t(), device_response :: binary) :: boolean()
-  def finish_registration(username, device_response) when is_binary(username) and is_binary(device_response) do
+  def finish_registration(username, device_response)
+      when is_binary(username) and is_binary(device_response) do
   end
 
   @doc """
