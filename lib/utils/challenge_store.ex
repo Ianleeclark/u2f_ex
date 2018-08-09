@@ -72,20 +72,23 @@ defmodule U2FEx.Utils.ChallengeStore do
     end
   end
 
-  @spec remove_challenge(table :: atom(), username :: String.t()) ::
+  @spec retrieve_challenge(table :: atom(), username :: String.t()) ::
           {:ok, String.t()} | {:error, atom}
-  defp remove_challenge(table, username) when is_binary(username) do
+  defp retrieve_challenge(table, username) when is_binary(username) do
     case :ets.lookup(table, username) do
       [{_user, challenge}] ->
-        :ets.delete(table, username)
         {:ok, challenge}
 
       [{_user, challenge} | _rest] ->
-        :ets.delete(table, username)
         {:ok, challenge}
 
       [] ->
         {:error, :no_challenge_found}
     end
+  end
+
+  @spec remove_challenge(table :: atom(), username :: String.t()) :: :ok | {:error, atom}
+  defp remove_challenge(table, username) when is_binary(username) do
+    :ets.delete(table, username)
   end
 end

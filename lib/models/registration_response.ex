@@ -30,7 +30,8 @@ defmodule U2FEx.RegistrationResponse do
     }
   end
 
-  @spec parse_cert_and_sig(cert_and_sig :: binary()) :: {certificate :: binary(), signature :: binary()}
+  @spec parse_cert_and_sig(cert_and_sig :: binary()) ::
+          {certificate :: binary(), signature :: binary()}
   defp parse_cert_and_sig(cert_and_sig) when is_binary(cert_and_sig) do
     <<_::16, cert_len::16, _::binary()>> = cert_and_sig
     total_cert_len = cert_len + 4

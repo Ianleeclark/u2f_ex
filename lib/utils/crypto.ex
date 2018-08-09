@@ -19,8 +19,17 @@ defmodule U2FEx.Utils.Crypto do
   @spec generate_challenge(byte_len :: integer()) :: String.t()
   def generate_challenge(num_bytes \\ 32) when num_bytes > @min_challenge_num_bytes do
     num_bytes
-    |> :crypto.strong_rand_bytes
+    |> :crypto.strong_rand_bytes()
     |> b64_encode
+  end
+
+  @doc """
+  Verifies the devices response against the challenge
+  """
+  @spec verify_response(binary(), String.t()) :: :ok | {:error, atom()}
+  def verify_response(signature, challenge) when is_binary(signature) and is_binary(challenge) do
+    # TODO(ian): Finish this out.
+    :ok
   end
 
   @spec b64_encode(data_to_encode :: String.t()) :: String.t()
