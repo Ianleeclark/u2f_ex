@@ -1,13 +1,28 @@
-defmodule U2fEx do
+defmodule U2FEx do
   @moduledoc """
   Handles registration and authentication of incoming U2F requests.
   """
+  # Determine if this is how we want to do this.
+  # @app_id Application.get_env(:u2fex, :application_name)
+  @app_id "https://ianleeclark.com"
+
+  alias U2FEx.{RegistrationRequest}#, RegistrationResponse}
+  alias U2FEx.Utils.{Crypto, ChallengeStore}
 
   @doc """
   Begins a registration request by creating a challenge.
   """
-  @spec start_registration(username :: String.t()) :: String.t()
+  @spec start_registration(username :: String.t()) :: {:ok, binary()} | {:error, :failed_to_store_challenge}
   def start_registration(username) when is_binary(username) do
+    challenge = Crypto.generate_challenge(32)
+    case GenServer.call(ChallengeStore, {:store_challenge, username, challenge}) do
+      :ok ->
+        challenge
+        |> RegistrationRequest.new(@app_id)
+        |> RegistrationRequest.serialize()
+      {:error, _reason} ->
+        {:error, :failed_to_store_challenge}
+    end
   end
 
   @doc """

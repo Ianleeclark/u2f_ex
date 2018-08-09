@@ -10,4 +10,22 @@ defmodule U2FEx.Utils.Crypto do
   def sha256(input) when is_binary(input) do
     :crypto.hash(:sha256, input)
   end
+
+  @min_challenge_num_bytes 8
+
+  @doc """
+  Handles generating a challenge for the U2F device to verify against.
+  """
+  @spec generate_challenge(byte_len :: integer()) :: String.t()
+  def generate_challenge(num_bytes \\ 32) when num_bytes > @min_challenge_num_bytes do
+    num_bytes
+    |> :crypto.strong_rand_bytes
+    |> b64_encode
+  end
+
+  @spec b64_encode(data_to_encode :: String.t()) :: String.t()
+  defp b64_encode(data_to_encode) do
+    data_to_encode
+    |> Base.encode64(padding: false)
+  end
 end
