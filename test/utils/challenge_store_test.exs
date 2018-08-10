@@ -47,14 +47,14 @@ defmodule U2FExTest.Utils.ChallengeStoreTest do
   describe "complete lifecycle tests" do
     test "Create challenge, store challenge, retrieve challenge, remove challenge" do
       challenge = Crypto.generate_challenge(32)
-      username = hd(@usernames)
+      username = "lee"
 
       :ok = GenServer.call(ChallengeStore, {:store_challenge, username, challenge})
 
       {:ok, retrieved_challenge} = GenServer.call(ChallengeStore, {:retrieve_challenge, username})
       assert challenge == retrieved_challenge
 
-      :ok = GenServer.call(ChallengeStore, {:remove_challenge, hd(@usernames)})
+      :ok = GenServer.call(ChallengeStore, {:remove_challenge, username})
 
       {:error, errval} = GenServer.call(ChallengeStore, {:retrieve_challenge, username})
       assert errval == :no_challenge_found
