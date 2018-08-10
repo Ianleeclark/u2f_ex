@@ -1,0 +1,2 @@
+defmodule U2FExTest.RegistrationRequestTest do
+end

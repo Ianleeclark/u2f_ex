@@ -12,12 +12,17 @@ defmodule U2FExTest.Utils.ChallengeStoreTest do
 
   def insert_test_challenges(_params) do
     @usernames
-    |> Enum.map(fn username -> GenServer.call(ChallengeStore, {:store_challenge, username, Crypto.generate_challenge(@challenge_len)}) end)
+    |> Enum.map(fn username ->
+      GenServer.call(
+        ChallengeStore,
+        {:store_challenge, username, Crypto.generate_challenge(@challenge_len)}
+      )
+    end)
     |> Enum.uniq()
     |> hd()
   end
 
-  #start_supervised(ChallengeStore)
+  # start_supervised(ChallengeStore)
   setup_all :insert_test_challenges
 
   #########
@@ -26,13 +31,17 @@ defmodule U2FExTest.Utils.ChallengeStoreTest do
 
   describe "retrieving challenges" do
     test "retrieve username that exists succeeds" do
-      {:ok, challenge} = response = GenServer.call(ChallengeStore, {:retrieve_challenge, hd(@usernames)})
+      {:ok, challenge} =
+        response = GenServer.call(ChallengeStore, {:retrieve_challenge, hd(@usernames)})
+
       assert response
       assert is_binary(challenge)
     end
 
     test "retrieve username that doesnt exist fails" do
-      {:error, errval} = response = GenServer.call(ChallengeStore, {:retrieve_challenge, "bruce-lee"})
+      {:error, errval} =
+        response = GenServer.call(ChallengeStore, {:retrieve_challenge, "bruce-lee"})
+
       assert response
       assert errval == :no_challenge_found
     end
