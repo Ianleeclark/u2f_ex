@@ -30,6 +30,23 @@ defmodule U2FEx.RegistrationResponse do
     }
   end
 
+  @doc """
+  Parses a Json response into a RegistrationResponse
+  """
+  @spec from_json(String.t()) :: {:ok, %__MODULE__{}} | {:error, atom()}
+  def from_json(json_input) when is_binary(json_input) do
+    case Jason.decode(json_input) do
+      {:ok, decoded} ->
+        decoded
+        |> Map.get("registrationData")
+        |> Crypto.b64_decode()
+        |> deserialize()
+
+      {:error, %Jason.DecodeError{} = error} ->
+        {:error, :invalid_json}
+    end
+  end
+
   @spec parse_cert_and_sig(cert_and_sig :: binary()) ::
           {certificate :: binary(), signature :: binary()}
   defp parse_cert_and_sig(cert_and_sig) when is_binary(cert_and_sig) do
