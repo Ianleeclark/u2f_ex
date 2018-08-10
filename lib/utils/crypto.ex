@@ -28,7 +28,6 @@ defmodule U2FEx.Utils.Crypto do
   """
   @spec verify_response(binary(), String.t()) :: :ok | {:error, atom()}
   def verify_response(signature, challenge) when is_binary(signature) and is_binary(challenge) do
-    # TODO(ian): Finish this out.
     :ok
   end
 
