@@ -13,10 +13,10 @@ defmodule U2FEx.RegistrationResponse do
   defstruct @required_keys
 
   @doc """
-  Deserializes a RegistrationResponse so that we can verify the device.
+  Deserializes a binary RegistrationResponse so that we can verify the device.
   """
-  @spec deserialize(registration_response :: binary()) :: %__MODULE__{}
-  def deserialize(registration_response) when is_binary(registration_response) do
+  @spec from_binary(registration_response :: binary()) :: %__MODULE__{}
+  def from_binary(registration_response) when is_binary(registration_response) do
     <<_reserved_byte::size(@reserved_byte_len), public_key::size(@public_key_len),
       key_handle_length::size(@key_handle_length_len), rest::binary>> = registration_response
 
@@ -42,7 +42,7 @@ defmodule U2FEx.RegistrationResponse do
         decoded
         |> Map.get("registrationData")
         |> Crypto.b64_decode()
-        |> deserialize()
+        |> from_binary()
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
