@@ -1,4 +1,4 @@
-defmodule U2fExTest do
+defmodule U2FExTest do
   use ExUnit.Case
-  doctest U2fEx
+  doctest U2FEx
 end
