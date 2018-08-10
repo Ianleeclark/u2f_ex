@@ -46,6 +46,6 @@ defmodule U2FEx.Utils.Crypto do
   @spec b64_decode(data_to_decode :: String.t()) :: String.t()
   def b64_decode(data_to_decode) do
     data_to_decode
-    |> Base.decode64(padding: false)
+    |> Base.decode64!(padding: false)
   end
 end

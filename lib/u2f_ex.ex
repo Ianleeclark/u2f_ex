@@ -21,7 +21,7 @@ defmodule U2FEx do
       :ok ->
         challenge
         |> RegistrationRequest.new(@app_id)
-        |> RegistrationRequest.serialize()
+        |> RegistrationRequest.to_json()
 
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
@@ -35,7 +35,7 @@ defmodule U2FEx do
   def finish_registration(username, device_response)
       when is_binary(username) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, username}),
-         registration_response = RegistrationResponse.deserialize(device_response),
+         registration_response = RegistrationResponse.from_json(device_response),
          :ok <- Crypto.verify_response(registration_response.signature, challenge),
          :ok <- GenServer.call(ChallengeStore, {:remove_challenge, username}) do
       :ok

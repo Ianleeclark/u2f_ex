@@ -3,6 +3,8 @@ defmodule U2FEx.RegistrationResponse do
   Represents an incoming registration response
   """
 
+  alias U2FEx.Utils.Crypto
+
   @reserved_byte_len 8
   @public_key_len 520
   @key_handle_length_len 8
@@ -42,7 +44,7 @@ defmodule U2FEx.RegistrationResponse do
         |> Crypto.b64_decode()
         |> deserialize()
 
-      {:error, %Jason.DecodeError{} = error} ->
+      {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
     end
   end
