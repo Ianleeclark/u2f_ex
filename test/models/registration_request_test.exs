@@ -18,8 +18,8 @@ defmodule U2FExTest.RegistrationRequestTest do
       app_id = "https://ianleeclark.com"
       request = RegistrationRequest.new(challenge, app_id)
 
-      <<challenge_bytes::256,app_id_bytes::256>> = RegistrationRequest.to_binary(request)
-      assert Crypto.sha256(challenge) == << challenge_bytes::256 >>
+      <<challenge_bytes::256, app_id_bytes::256>> = RegistrationRequest.to_binary(request)
+      assert Crypto.sha256(challenge) == <<challenge_bytes::256>>
       assert Crypto.sha256(app_id) == <<app_id_bytes::256>>
     end
 
