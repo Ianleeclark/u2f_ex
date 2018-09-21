@@ -685,7 +685,6 @@ u2f.sendSignRequest = function(appId, challenge, registeredKeys, callback, opt_t
  * @param {number=} opt_timeoutSeconds
  */
 u2f.register = function(appId, registerRequests, registeredKeys, callback, opt_timeoutSeconds) {
-    console.log(appId, registerRequests);
   if (js_api_version === undefined) {
     // Send a message to get the extension to JS API version, then send the actual register request.
     u2f.getApiVersion(
@@ -781,22 +780,20 @@ $(document).ready(() => {
     $('#register').click(() => {
         const csrf = $("meta[name='csrf-token']").attr("content");
         post("/u2f/register", csrf).then((response) => {
-            const retval = u2f.register(response.appId, response.registerRequests, response.registeredKeys);
-            retval.then(x => {
+            u2f.register(response.appId, response.registerRequests, response.registeredKeys, (x) => {
                 console.log('success: ', x);
             }, error => {
                 console.log('error: ', error);
             });
-            console.log(retval);
         }, (error) => {
-            console.log(error);
+            console.log("ERRR: ", error);
         });
     });
 
     $('#sign').click(() => {
         const csrf = $("meta[name='csrf-token']").attr("content");
         post("/u2f/sign", csrf).then((response) => {
-            console.log(response);
+            console.log("sign: ", response);
         }, (error) => {
             console.log(error);
         });
