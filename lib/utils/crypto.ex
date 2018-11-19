@@ -1,7 +1,7 @@
 defmodule U2FEx.Utils.Crypto do
-  @moduledoc """
-  Houses crypto operations for U2F validation.
-  """
+  @moduledoc false
+
+  alias U2FEx.{SignResponse, RegistrationResponse}
 
   @doc """
   Hashes the input text using sha256
@@ -26,18 +26,78 @@ defmodule U2FEx.Utils.Crypto do
   @doc """
   Verifies the devices response against the challenge
   """
-  @spec verify_response(binary(), String.t()) :: :ok | {:error, atom()}
-  def verify_response(signature, challenge) when is_binary(signature) and is_binary(challenge) do
-    :ok
+  @spec verify_registration_response(RegistrationResponse.t(), client_data :: binary()) ::
+          :ok | {:error, atom()}
+  def verify_registration_response(
+        %RegistrationResponse{
+          key_handle: key_handle,
+          public_key: public_key,
+          signature: signature,
+          attestation_cert: certificate
+        },
+        client_data
+      ) do
+    decoded_client_data = b64_decode(client_data)
+    client_data_map = decoded_client_data |> Jason.decode!()
+
+    constructed_string =
+      <<0>> <>
+        :crypto.hash(:sha256, Map.get(client_data_map, "origin")) <>
+        :crypto.hash(:sha256, decoded_client_data) <> key_handle <> public_key
+
+    certificate_public_key =
+      certificate
+      |> get_certificate_public_key()
+      |> X509.PublicKey.unwrap()
+
+    case :public_key.verify(
+           constructed_string,
+           :sha256,
+           signature,
+           certificate_public_key
+         ) do
+      true ->
+        :ok
+
+      false ->
+        {:error, :signature_verification_failed}
+    end
   end
 
+  @spec verify_authentication_response(SignResponse.t(), public_key :: binary()) ::
+          :ok | {:error, atom()}
+  def verify_authentication_response(
+        %SignResponse{
+          signature: signature,
+          app_id: app_id,
+          challenge: challenge,
+          user_presence: user_presence,
+          counter: counter
+        },
+        public_key
+      )
+      when is_binary(public_key) do
+    constructed_string =
+      <<Crypto.sha256(app_id)::binary, user_presence::binary, counter::binary,
+        Crypto.sha256(challenge)::binary>>
+
+    case :crypto.verify(:ecdsa, :sha256, constructed_string, signature, public_key) do
+      true ->
+        :ok
+
+      false ->
+        {:error, :signature_verification_failed}
+    end
+  end
+
+  # TODO(ian): Move these into generic utils module, doesn't belong in crypto-specific
   @doc """
   Simple wrapper around Base.encode64(padding: false) because I always forget padding.
   """
   @spec b64_encode(data_to_encode :: String.t()) :: String.t()
   def b64_encode(data_to_encode) do
     data_to_encode
-    |> Base.encode64(padding: false)
+    |> Base.url_encode64(padding: false)
   end
 
   @doc """
@@ -46,6 +106,17 @@ defmodule U2FEx.Utils.Crypto do
   @spec b64_decode(data_to_decode :: String.t()) :: String.t()
   def b64_decode(data_to_decode) do
     data_to_decode
-    |> Base.decode64!(padding: false)
+    |> Base.url_decode64!(padding: false)
+  end
+
+  ##############################
+  # Internal Private Functions #
+  ##############################
+
+  @spec get_certificate_public_key(tuple()) :: tuple()
+  defp get_certificate_public_key({:Certificate, tbs, _, _}) do
+    tbs
+    |> Tuple.to_list()
+    |> Enum.at(7)
   end
 end

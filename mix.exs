@@ -25,7 +25,8 @@ defmodule U2fEx.MixProject do
     [
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:x509, "~> 0.2.0"}
     ]
   end
 
