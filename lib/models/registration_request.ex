@@ -1,7 +1,5 @@
 defmodule U2FEx.RegistrationRequest do
-  @moduledoc """
-  Represents an outgoing registration request. The U2F device will take this and then be prompted to respond.
-  """
+  @moduledoc false
 
   @type t :: %__MODULE__{
           challenge: binary(),

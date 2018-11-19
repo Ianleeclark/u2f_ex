@@ -1,7 +1,5 @@
 defmodule U2FEx.RegistrationResponse do
-  @moduledoc """
-  Represents an incoming registration response
-  """
+  @moduledoc false
 
   @type t :: %__MODULE__{
           public_key: binary(),

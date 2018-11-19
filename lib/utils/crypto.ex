@@ -1,9 +1,7 @@
 defmodule U2FEx.Utils.Crypto do
-  @moduledoc """
-  Houses crypto operations for U2F validation.
-  """
+  @moduledoc false
 
-  alias U2FEx.RegistrationResponse
+  alias U2FEx.{SignResponse, RegistrationResponse}
 
   @doc """
   Hashes the input text using sha256
@@ -28,9 +26,9 @@ defmodule U2FEx.Utils.Crypto do
   @doc """
   Verifies the devices response against the challenge
   """
-  @spec verify_response(RegistrationResponse.t(), client_data :: binary()) ::
+  @spec verify_registration_response(RegistrationResponse.t(), client_data :: binary()) ::
           :ok | {:error, atom()}
-  def verify_response(
+  def verify_registration_response(
         %RegistrationResponse{
           key_handle: key_handle,
           public_key: public_key,
@@ -66,6 +64,32 @@ defmodule U2FEx.Utils.Crypto do
     end
   end
 
+  @spec verify_authentication_response(SignResponse.t(), public_key :: binary()) ::
+          :ok | {:error, atom()}
+  def verify_authentication_response(
+        %SignResponse{
+          signature: signature,
+          app_id: app_id,
+          challenge: challenge,
+          user_presence: user_presence,
+          counter: counter
+        },
+        public_key
+      )
+      when is_binary(public_key) do
+    constructed_string =
+      <<app_id::binary, user_presence::binary, counter::binary, challenge::binary>>
+
+    case :crypto.verify(:ecdsa, :sha256, constructed_string, signature, public_key) do
+      true ->
+        :ok
+
+      false ->
+        {:error, :signature_verification_failed}
+    end
+  end
+
+  # TODO(ian): Move these into generic utils module, doesn't belong in crypto-specific
   @doc """
   Simple wrapper around Base.encode64(padding: false) because I always forget padding.
   """

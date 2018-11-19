@@ -1,7 +1,5 @@
 defmodule U2FEx.Utils.ChallengeStore do
-  @moduledoc """
-  ETS based short-term store to keep challenges.
-  """
+  @moduledoc false
 
   use GenServer
   require Logger
