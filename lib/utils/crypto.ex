@@ -78,7 +78,8 @@ defmodule U2FEx.Utils.Crypto do
       )
       when is_binary(public_key) do
     constructed_string =
-      <<app_id::binary, user_presence::binary, counter::binary, challenge::binary>>
+      <<Crypto.sha256(app_id)::binary, user_presence::binary, counter::binary,
+        Crypto.sha256(challenge)::binary>>
 
     case :crypto.verify(:ecdsa, :sha256, constructed_string, signature, public_key) do
       true ->
