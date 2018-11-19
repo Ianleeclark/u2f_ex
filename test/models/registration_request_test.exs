@@ -1,7 +1,7 @@
 defmodule U2FExTest.RegistrationRequestTest do
   use ExUnit.Case
 
-  alias U2FEx.RegistrationRequest
+  alias U2FEx.{RegistrationRequest, RegistrationResponse}
   alias U2FEx.Utils.Crypto
 
   @test_data1 %{

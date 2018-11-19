@@ -42,8 +42,8 @@ defmodule U2FEx.Utils.Crypto do
 
     constructed_string =
       <<0>> <>
-        :crypto.hash(:sha256, Map.get(client_data_map, "origin")) <>
-        :crypto.hash(:sha256, decoded_client_data) <> key_handle <> public_key
+        sha256(Map.get(client_data_map, "origin")) <>
+        sha256(decoded_client_data) <> key_handle <> public_key
 
     certificate_public_key =
       certificate
@@ -72,16 +72,18 @@ defmodule U2FEx.Utils.Crypto do
           app_id: app_id,
           challenge: challenge,
           user_presence: user_presence,
-          counter: counter
+          counter: counter,
+          client_data: client_data
         },
         public_key
       )
       when is_binary(public_key) do
-    constructed_string =
-      <<Crypto.sha256(app_id)::binary, user_presence::binary, counter::binary,
-        Crypto.sha256(challenge)::binary>>
+    constructed_string = sha256(app_id) <> user_presence <> counter <> sha256(client_data)
 
-    case :crypto.verify(:ecdsa, :sha256, constructed_string, signature, public_key) do
+    case :crypto.verify(:ecdsa, :sha256, constructed_string, signature, [
+           public_key,
+           :prime256v1
+         ]) do
       true ->
         :ok
 
