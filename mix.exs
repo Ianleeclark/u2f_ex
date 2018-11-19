@@ -5,7 +5,7 @@ defmodule U2fEx.MixProject do
     [
       app: :u2f_ex,
       version: "0.1.0",
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -23,7 +23,7 @@ defmodule U2fEx.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18", only: :dev, runtime: false},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.1"},
       {:x509, "~> 0.2.0"}
@@ -45,7 +45,7 @@ defmodule U2fEx.MixProject do
       name: "u2f_ex",
       files: ["lib", "mix.exs", "LICENSE"],
       maintainers: ["Ian Lee Clark"],
-      licenses: ["LGPL"],
+      licenses: ["BSD 3-clause"],
       links: %{"Github" => "https://github.com/GrappigPanda/u2f_ex"}
     ]
   end
