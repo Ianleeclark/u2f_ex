@@ -1,7 +1,7 @@
 defmodule U2FExTest.RegistrationRequestTest do
   use ExUnit.Case
 
-  alias U2FEx.RegistrationRequest
+  alias U2FEx.{RegistrationRequest, RegistrationResponse}
   alias U2FEx.Utils.Crypto
 
   @test_data1 %{
@@ -62,8 +62,8 @@ defmodule U2FExTest.RegistrationRequestTest do
         assert :ok ==
                  test_data
                  |> Jason.encode!()
-                 |> U2FEx.RegistrationResponse.from_json()
-                 |> U2FEx.Utils.Crypto.verify_response(test_data.clientData)
+                 |> RegistrationResponse.from_json()
+                 |> Crypto.verify_registration_response(test_data.clientData)
       end)
     end
   end

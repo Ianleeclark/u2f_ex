@@ -1,7 +1,5 @@
 defmodule U2FEx.RegistrationResponse do
-  @moduledoc """
-  Represents an incoming registration response
-  """
+  @moduledoc false
 
   @type t :: %__MODULE__{
           public_key: binary(),
@@ -22,7 +20,7 @@ defmodule U2FEx.RegistrationResponse do
   @doc """
   Deserializes a binary RegistrationResponse so that we can verify the device.
   """
-  @spec from_binary(registration_response :: binary()) :: %__MODULE__{}
+  @spec from_binary(registration_response :: binary()) :: __MODULE__.t()
   def from_binary(registration_response) when is_binary(registration_response) do
     <<5::8, public_key::size(@public_key_len), key_handle_length::size(@key_handle_length_len),
       rest::binary()>> = registration_response
@@ -44,7 +42,7 @@ defmodule U2FEx.RegistrationResponse do
   @doc """
   Parses a Json response into a RegistrationResponse
   """
-  @spec from_json(String.t()) :: {:ok, %__MODULE__{}} | {:error, atom()}
+  @spec from_json(String.t()) :: {:ok, __MODULE__.t()} | {:error, atom()}
   def from_json(json_input) when is_binary(json_input) do
     case Jason.decode(json_input) do
       {:ok, decoded} ->
