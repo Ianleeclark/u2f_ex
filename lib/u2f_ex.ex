@@ -8,11 +8,12 @@ defmodule U2FEx do
   alias U2FEx.Utils.{Crypto, ChallengeStore}
 
   alias U2FEx.{
+    KeyMetadata,
+    RegisteredKey,
     RegistrationRequest,
     RegistrationResponse,
     SignRequest,
-    SignResponse,
-    RegisteredKey
+    SignResponse
   }
 
   @challenge_len 32
@@ -22,8 +23,7 @@ defmodule U2FEx do
   Begins a registration request by creating a challenge. You should send the resulting data to the
   u2f device.
   """
-  @spec start_registration(username :: String.t()) ::
-          {:ok, binary()} | {:error, :failed_to_store_challenge}
+  @spec start_registration(username :: String.t()) :: map() | {:error, :failed_to_store_challenge}
   def start_registration(username) when is_binary(username) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
@@ -31,7 +31,6 @@ defmodule U2FEx do
       :ok ->
         challenge
         |> RegistrationRequest.new(@app_id)
-        |> elem(1)
         |> RegistrationRequest.to_map()
 
       {:error, _reason} ->
@@ -43,15 +42,17 @@ defmodule U2FEx do
   Finishes registration. You'll need to persist the data in KeyMetadata struct to whatever database
   your heart desires.
   """
-  @spec finish_registration(challenge :: String.t(), device_response :: binary) :: boolean()
-  def finish_registration(challenge, device_response)
-      when is_binary(challenge) and is_binary(device_response) do
-    with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, challenge}),
+  @spec finish_registration(username :: String.t(), device_response :: binary) ::
+          {:ok, KeyMetadata.t()}
+  def finish_registration(username, device_response)
+      when is_binary(username) and is_binary(device_response) do
+    with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, username}),
          {:ok, %RegistrationResponse{signature: signature} = response} =
            RegistrationResponse.from_json(device_response),
-         :ok <- Crypto.verify_registration_response(signature, challenge),
+         {:ok, %{"clientData" => client_data}} <- Jason.decode(device_response),
+         :ok <- Crypto.verify_registration_response(response, client_data),
          :ok <- GenServer.call(ChallengeStore, {:remove_challenge, challenge}) do
-      RegistrationResponse.key_metadata(response)
+      RegistrationResponse.to_key_metadata(response)
     else
       error ->
         error

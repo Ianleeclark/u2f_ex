@@ -9,7 +9,7 @@ defmodule U2FEx.RegistrationResponse do
         }
 
   alias U2FEx.Utils.Crypto
-  use Bitwise
+  alias U2FEx.KeyMetadata
 
   @public_key_len 65 * 8
   @key_handle_length_len 1 * 8
@@ -73,6 +73,19 @@ defmodule U2FEx.RegistrationResponse do
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
     end
+  end
+
+  @doc """
+  Exports a RegistrationResponse -> KeyMetadata for finishing registration on consumer applications side.
+  """
+  @spec to_key_metadata(__MODULE__.t()) :: {:ok, KeyMetadata.t()}
+  def to_key_metadata(%__MODULE__{} = response) do
+    {:ok,
+     KeyMetadata.new(
+       response.public_key |> Crypto.b64_encode(),
+       response.key_handle |> Crypto.b64_encode(),
+       @app_id
+     )}
   end
 
   ##############################
