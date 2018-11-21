@@ -18,9 +18,29 @@ defmodule U2FEx.RegistrationResponse do
   defstruct @required_keys
 
   @doc """
+  """
+  @spec new(
+          public_key :: binary,
+          key_handle :: binary(),
+          attestation_cert :: tuple(),
+          signature :: binary()
+        ) :: {:ok, __MODULE__.t()}
+  def new(public_key, key_handle, attestation_cert, signature)
+      when is_binary(public_key) and is_binary(key_handle) and is_binary(signature) do
+    {:ok,
+     struct!(
+       __MODULE__,
+       public_key: public_key,
+       key_handle: key_handle,
+       attestation_cert: attestation_cert,
+       signature: signature
+     )}
+  end
+
+  @doc """
   Deserializes a binary RegistrationResponse so that we can verify the device.
   """
-  @spec from_binary(registration_response :: binary()) :: __MODULE__.t()
+  @spec from_binary(registration_response :: binary()) :: {:ok, __MODULE__.t()}
   def from_binary(registration_response) when is_binary(registration_response) do
     <<5::8, public_key::size(@public_key_len), key_handle_length::size(@key_handle_length_len),
       rest::binary()>> = registration_response
@@ -30,12 +50,11 @@ defmodule U2FEx.RegistrationResponse do
 
     {certificate, signature} = parse_cert_and_sig(cert_and_sig)
 
-    struct!(
-      __MODULE__,
-      public_key: <<public_key::size(@public_key_len)>>,
-      key_handle: <<key_handle::size(total_key_handle_len)>>,
-      attestation_cert: X509.from_der(certificate, :Certificate),
-      signature: signature
+    new(
+      <<public_key::size(@public_key_len)>>,
+      <<key_handle::size(total_key_handle_len)>>,
+      X509.from_der(certificate, :Certificate),
+      signature
     )
   end
 

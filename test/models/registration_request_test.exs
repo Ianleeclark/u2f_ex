@@ -63,6 +63,7 @@ defmodule U2FExTest.RegistrationRequestTest do
                  test_data
                  |> Jason.encode!()
                  |> RegistrationResponse.from_json()
+                 |> elem(1)
                  |> Crypto.verify_registration_response(test_data.clientData)
       end)
     end
