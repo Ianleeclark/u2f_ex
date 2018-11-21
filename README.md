@@ -1,4 +1,7 @@
 # U2fEx
+[![CircleCI](https://circleci.com/gh/GrappigPanda/u2f_ex/tree/master.svg?style=svg)](https://circleci.com/gh/GrappigPanda/u2f_ex/tree/master)
+[![Hex.pm](https://img.shields.io/hexpm/v/u2f_ex.svg)](https://hex.pm/packages/u2f_ex)
+[HexDocs](https://hexdocs.pm/u2f_ex/api-reference.html)
 
 **TODO: Add description**
 
