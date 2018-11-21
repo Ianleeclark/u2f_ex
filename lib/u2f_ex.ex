@@ -44,8 +44,9 @@ defmodule U2FEx do
   def finish_registration(challenge, device_response)
       when is_binary(challenge) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, challenge}),
-         registration_response = RegistrationResponse.from_json(device_response),
-         :ok <- Crypto.verify_registration_response(registration_response.signature, challenge),
+         {:ok, %RegistrationResponse{signature: signature}} =
+           RegistrationResponse.from_json(device_response),
+         :ok <- Crypto.verify_registration_response(signature, challenge),
          :ok <- GenServer.call(ChallengeStore, {:remove_challenge, challenge}) do
       # TODO(ian): return the other useful information for a `registered_key`
       # TODO(ian): Instruct user to store that information
