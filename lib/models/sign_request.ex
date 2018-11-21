@@ -33,4 +33,15 @@ defmodule U2FEx.SignRequest do
 
     new(decoded_json.challenge, decoded_json.registered_keys)
   end
+
+  @spec to_map(__MODULE__.t()) :: %{
+          required(:challenge) => String.t(),
+          required(:registered_keys) => [map()]
+        }
+  def to_map(%__MODULE__{challenge: challenge, registered_keys: registered_keys}) do
+    %{
+      challenge: challenge,
+      registered_keys: registered_keys
+    }
+  end
 end

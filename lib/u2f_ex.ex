@@ -19,7 +19,8 @@ defmodule U2FEx do
   @pki_storage Application.get_env(:u2f_ex, :pki_storage)
 
   @doc """
-  Begins a registration request by creating a challenge.
+  Begins a registration request by creating a challenge. You should send the resulting data to the
+  u2f device.
   """
   @spec start_registration(username :: String.t()) ::
           {:ok, binary()} | {:error, :failed_to_store_challenge}
@@ -30,7 +31,8 @@ defmodule U2FEx do
       :ok ->
         challenge
         |> RegistrationRequest.new(@app_id)
-        |> RegistrationRequest.to_json()
+        |> elem(1)
+        |> RegistrationRequest.to_map()
 
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
@@ -38,19 +40,18 @@ defmodule U2FEx do
   end
 
   @doc """
-  Verifies registration is complete by checking the challenge.
+  Finishes registration. You'll need to persist the data in KeyMetadata struct to whatever database
+  your heart desires.
   """
   @spec finish_registration(challenge :: String.t(), device_response :: binary) :: boolean()
   def finish_registration(challenge, device_response)
       when is_binary(challenge) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, challenge}),
-         {:ok, %RegistrationResponse{signature: signature}} =
+         {:ok, %RegistrationResponse{signature: signature} = response} =
            RegistrationResponse.from_json(device_response),
          :ok <- Crypto.verify_registration_response(signature, challenge),
          :ok <- GenServer.call(ChallengeStore, {:remove_challenge, challenge}) do
-      # TODO(ian): return the other useful information for a `registered_key`
-      # TODO(ian): Instruct user to store that information
-      :ok
+      RegistrationResponse.key_metadata(response)
     else
       error ->
         error
@@ -58,9 +59,10 @@ defmodule U2FEx do
   end
 
   @doc """
-  Starts authentication against a known U2F token.
+  Starts authentication by using the previously stored key metadata to force the requesting
+  user prove their identity. Send the resulting map to the u2f device.
   """
-  @spec start_authentication(user_id :: any()) :: %{}
+  @spec start_authentication(user_id :: any()) :: {:ok, SignRequest.t()} | {:error, atom()}
   def start_authentication(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
@@ -69,27 +71,34 @@ defmodule U2FEx do
       registered_keys =
         user_keys
         |> Enum.map(fn %{version: version, key_handle: handle} = key ->
-          RegisteredKey.new(
-            version,
+          version
+          |> RegisteredKey.new(
             handle,
             Map.get(key, :app_id, @app_id),
             Map.get(key, :transports, nil)
           )
+          |> elem(1)
         end)
 
-      SignRequest.new(challenge, registered_keys)
+      challenge
+      |> SignRequest.new(registered_keys)
+      |> elem(1)
+      |> SignRequest.to_map()
     end
   end
 
   @doc """
-  Finishes authentication for a known U2F token.
+  Finishes authentication. Once this has passed, the user is deemed to have sufficiently
+  proved their identity.
   """
-  @spec finish_authentication(user_id :: any(), device_response :: binary()) :: %{}
-  def finish_authentication(user_id, device_response) do
+  @spec finish_authentication(user_id :: any(), device_response :: binary()) ::
+          :ok | {:error, atom()}
+  def(finish_authentication(user_id, device_response)) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, %{public_key: public_key}} <-
            @pki_storage.get_public_key_for_user(user_id, sign_response.key_handle),
          :ok <- Crypto.verify_authentication_response(sign_response, public_key) do
+      :ok
     end
   end
 end
