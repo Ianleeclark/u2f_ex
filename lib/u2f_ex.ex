@@ -17,7 +17,7 @@ defmodule U2FEx do
   }
 
   @challenge_len 32
-  @pki_storage Provider
+  @pki_storage Application.get_env(:u2f_ex, :pki_storage)
 
   @doc """
   Begins a registration request by creating a challenge.
