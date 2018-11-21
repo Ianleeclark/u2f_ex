@@ -24,7 +24,9 @@ defmodule U2FExTest do
       username = "user001"
 
       results =
-        U2FEx.start_registration(username) |> Map.put(:challenge, @registration_data.challenge)
+        username
+        |> U2FEx.start_registration()
+        |> Map.put(:challenge, @registration_data.challenge)
 
       assert :ok ==
                GenServer.call(

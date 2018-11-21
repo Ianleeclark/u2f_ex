@@ -1,4 +1,5 @@
 defmodule PKIStorage do
+  @moduledoc false
   @behaviour U2FEx.PKIStorageBehaviour
 
   @impl PKIStorageBehaviour
