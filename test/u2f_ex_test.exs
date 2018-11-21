@@ -47,6 +47,13 @@ defmodule U2FExTest do
 
   describe "Authentication process" do
     test "Starting and finishing authentication" do
+      username = "asdf"
+
+      start_results = U2FEx.start_authentication(username)
+      assert is_map(start_results)
+      assert is_binary(Map.get(start_results, :challenge))
+
+      assert :ok == U2FEx.finish_authentication(username, Jason.encode!(@authentication_data))
     end
   end
 end
