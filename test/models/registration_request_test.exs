@@ -41,17 +41,16 @@ defmodule U2FExTest.RegistrationRequestTest do
       assert Crypto.sha256(app_id) == <<app_id_bytes::256>>
     end
 
-    test "to_json/1" do
+    test "to_map/1" do
       challenge = Crypto.generate_challenge(32)
       app_id = "https://ianleeclark.com"
       request = RegistrationRequest.new(challenge, app_id)
 
-      json_request = RegistrationRequest.to_json(request)
-      assert is_binary(json_request)
+      map_to_test = RegistrationRequest.to_map(request)
+      assert is_map(map_to_test)
 
-      decoded_request = Jason.decode!(json_request)
-      assert Crypto.b64_decode(decoded_request["challenge"]) == challenge
-      assert Crypto.b64_decode(decoded_request["appId"]) == app_id
+      assert Crypto.b64_decode(map_to_test.challenge) == challenge
+      assert Crypto.b64_decode(map_to_test.appId) == app_id
     end
   end
 

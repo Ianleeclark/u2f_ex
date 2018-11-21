@@ -32,15 +32,14 @@ defmodule U2FEx.RegistrationRequest do
   end
 
   @doc """
-  Serializes a RegistrationRequest to Json so that the javascript API can handle it.
+  Serializes a RegistrationRequest to a map so that the calling application can use it.
   """
-  @spec to_json(__MODULE__.t()) :: String.t()
-  def to_json(%__MODULE__{challenge: challenge, app_id: app_id}) do
+  @spec to_map(__MODULE__.t()) :: map()
+  def to_map(%__MODULE__{challenge: challenge, app_id: app_id}) do
     %{
       version: "U2F_V2",
       challenge: Crypto.b64_encode(challenge),
       appId: Crypto.b64_encode(app_id)
     }
-    |> Jason.encode!()
   end
 end
