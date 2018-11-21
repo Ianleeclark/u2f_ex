@@ -69,7 +69,12 @@ defmodule U2FEx do
       registered_keys =
         user_keys
         |> Enum.map(fn %{version: version, key_handle: handle} = key ->
-          RegisteredKey.new(version, handle, @app_id, Map.get(key, :transports, nil))
+          RegisteredKey.new(
+            version,
+            handle,
+            Map.get(key, :app_id, @app_id),
+            Map.get(key, :transports, nil)
+          )
         end)
 
       SignRequest.new(challenge, registered_keys)
