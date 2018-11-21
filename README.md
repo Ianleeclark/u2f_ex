@@ -15,6 +15,19 @@ def deps do
 end
 ```
 
+### PKIStorage
+
+### Config Value
+
+Next you'll need to update your configuration to set the PKIStorage model:
+
+```elixir
+config :u2f_ex,
+    pki_storage: PKIStorage,
+    app_id: "https://yoursite.com"
+```
+###### NOTE: The <app_id> should be your site.
+
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/u2f_ex](https://hexdocs.pm/u2f_ex).
