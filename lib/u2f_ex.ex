@@ -8,11 +8,12 @@ defmodule U2FEx do
   alias U2FEx.Utils.{Crypto, ChallengeStore}
 
   alias U2FEx.{
+    KeyMetadata,
+    RegisteredKey,
     RegistrationRequest,
     RegistrationResponse,
     SignRequest,
-    SignResponse,
-    RegisteredKey
+    SignResponse
   }
 
   @challenge_len 32
@@ -22,16 +23,14 @@ defmodule U2FEx do
   Begins a registration request by creating a challenge. You should send the resulting data to the
   u2f device.
   """
-  @spec start_registration(username :: String.t()) ::
-          {:ok, binary()} | {:error, :failed_to_store_challenge}
-  def start_registration(username) when is_binary(username) do
+  @spec start_registration(user_id :: String.t()) :: map() | {:error, :failed_to_store_challenge}
+  def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
-    case GenServer.call(ChallengeStore, {:store_challenge, username, challenge}) do
+    case GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}) do
       :ok ->
         challenge
         |> RegistrationRequest.new(@app_id)
-        |> elem(1)
         |> RegistrationRequest.to_map()
 
       {:error, _reason} ->
@@ -43,15 +42,17 @@ defmodule U2FEx do
   Finishes registration. You'll need to persist the data in KeyMetadata struct to whatever database
   your heart desires.
   """
-  @spec finish_registration(challenge :: String.t(), device_response :: binary) :: boolean()
-  def finish_registration(challenge, device_response)
-      when is_binary(challenge) and is_binary(device_response) do
-    with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, challenge}),
+  @spec finish_registration(user_id :: String.t(), device_response :: binary) ::
+          {:ok, KeyMetadata.t()}
+  def finish_registration(user_id, device_response)
+      when is_binary(user_id) and is_binary(device_response) do
+    with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, user_id}),
          {:ok, %RegistrationResponse{signature: signature} = response} =
            RegistrationResponse.from_json(device_response),
-         :ok <- Crypto.verify_registration_response(signature, challenge),
+         {:ok, %{"clientData" => client_data}} <- Jason.decode(device_response),
+         :ok <- Crypto.verify_registration_response(response, client_data),
          :ok <- GenServer.call(ChallengeStore, {:remove_challenge, challenge}) do
-      RegistrationResponse.key_metadata(response)
+      RegistrationResponse.to_key_metadata(response)
     else
       error ->
         error
@@ -77,7 +78,6 @@ defmodule U2FEx do
             Map.get(key, :app_id, @app_id),
             Map.get(key, :transports, nil)
           )
-          |> elem(1)
         end)
 
       challenge
@@ -92,12 +92,16 @@ defmodule U2FEx do
   proved their identity.
   """
   @spec finish_authentication(user_id :: any(), device_response :: binary()) ::
-          :ok | {:error, atom()}
-  def(finish_authentication(user_id, device_response)) do
+          :ok | {:error, :signature_verification_failed} | {:error, atom()}
+  def finish_authentication(user_id, device_response) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, %{public_key: public_key}} <-
-           @pki_storage.get_public_key_for_user(user_id, sign_response.key_handle),
-         :ok <- Crypto.verify_authentication_response(sign_response, public_key) do
+           @pki_storage.get_public_key_for_user(
+             user_id,
+             sign_response.key_handle |> Crypto.b64_encode()
+           ),
+         :ok <-
+           Crypto.verify_authentication_response(sign_response, public_key |> Crypto.b64_decode()) do
       :ok
     end
   end
