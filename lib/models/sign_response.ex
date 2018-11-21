@@ -15,8 +15,7 @@ defmodule U2FEx.SignResponse do
 
   @counter_len 4 * 8
 
-  # TODO(ian): Replace with config value
-  @app_id "https://localhost"
+  @app_id Application.get_env(:u2f_ex, :app_id)
 
   @required_keys [
     :key_handle,

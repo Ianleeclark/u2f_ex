@@ -2,9 +2,8 @@ defmodule U2FEx do
   @moduledoc """
   Handles registration and authentication of incoming U2F requests.
   """
-  # Determine if this is how we want to do this.
-  # @app_id Application.get_env(:u2fex, :application_name)
-  @app_id "https://ianleeclark.com"
+  @app_id Application.get_env(:u2f_ex, :app_id)
+  @pki_storage Application.get_env(:u2f_ex, :pki_storage)
 
   alias U2FEx.Utils.{Crypto, ChallengeStore}
 
@@ -17,7 +16,6 @@ defmodule U2FEx do
   }
 
   @challenge_len 32
-  @pki_storage Provider
 
   @doc """
   Begins a registration request by creating a challenge.
