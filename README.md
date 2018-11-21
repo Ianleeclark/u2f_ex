@@ -17,6 +17,12 @@ end
 
 ### PKIStorage
 
+In order to properly use this library, you're going to need to store metadata and public
+keys for any user registering their U2F Token. However, u2f_ex will need to retrieve that 
+metadata, so you're get to write a glorious new module implementing our storage behaviour.
+
+Check out some example docs here: [PKIStorage Example](https://hexdocs.pm/ecto/Ecto.Repo.html#c:list_key_handles_for_user/1)
+
 ### Config Value
 
 Next you'll need to update your configuration to set the PKIStorage model:
