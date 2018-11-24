@@ -6,6 +6,7 @@ defmodule U2FEx.RegistrationRequest do
           app_id: binary()
         }
 
+  alias U2FEx.Utils
   alias U2FEx.Utils.Crypto
 
   @required_keys [:challenge, :app_id]
@@ -38,8 +39,8 @@ defmodule U2FEx.RegistrationRequest do
   def to_map(%__MODULE__{challenge: challenge, app_id: app_id}) do
     %{
       version: "U2F_V2",
-      challenge: Crypto.b64_encode(challenge),
-      appId: Crypto.b64_encode(app_id)
+      challenge: Utils.b64_encode(challenge),
+      appId: Utils.b64_encode(app_id)
     }
   end
 end

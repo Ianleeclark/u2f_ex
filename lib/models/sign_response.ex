@@ -11,6 +11,7 @@ defmodule U2FEx.SignResponse do
           client_data: String.t()
         }
 
+  alias U2FEx.Utils
   alias U2FEx.Utils.Crypto
 
   @counter_len 4 * 8
@@ -79,9 +80,9 @@ defmodule U2FEx.SignResponse do
       device_response
       |> Jason.decode!()
 
-    signature_data = decoded_json |> Map.get("signatureData") |> Crypto.b64_decode()
-    client_data = decoded_json |> Map.get("clientData") |> Crypto.b64_decode()
-    key_handle = decoded_json |> Map.get("keyHandle") |> Crypto.b64_decode()
+    signature_data = decoded_json |> Map.get("signatureData") |> Utils.b64_decode()
+    client_data = decoded_json |> Map.get("clientData") |> Utils.b64_decode()
+    key_handle = decoded_json |> Map.get("keyHandle") |> Utils.b64_decode()
 
     from_binary(key_handle, client_data, signature_data)
   end

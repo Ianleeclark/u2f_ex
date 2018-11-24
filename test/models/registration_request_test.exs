@@ -1,7 +1,7 @@
 defmodule U2FExTest.RegistrationRequestTest do
   use ExUnit.Case
 
-  alias U2FEx.{RegistrationRequest, RegistrationResponse}
+  alias U2FEx.{RegistrationRequest, RegistrationResponse, Utils}
   alias U2FEx.Utils.Crypto
 
   @test_data1 %{
@@ -49,8 +49,8 @@ defmodule U2FExTest.RegistrationRequestTest do
       map_to_test = RegistrationRequest.to_map(request)
       assert is_map(map_to_test)
 
-      assert Crypto.b64_decode(map_to_test.challenge) == challenge
-      assert Crypto.b64_decode(map_to_test.appId) == app_id
+      assert Utils.b64_decode(map_to_test.challenge) == challenge
+      assert Utils.b64_decode(map_to_test.appId) == app_id
     end
   end
 

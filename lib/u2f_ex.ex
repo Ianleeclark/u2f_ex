@@ -5,6 +5,7 @@ defmodule U2FEx do
   @app_id Application.get_env(:u2f_ex, :app_id)
   @pki_storage Application.get_env(:u2f_ex, :pki_storage)
 
+  alias U2FEx.Utils
   alias U2FEx.Utils.{Crypto, ChallengeStore}
 
   alias U2FEx.{
@@ -47,7 +48,7 @@ defmodule U2FEx do
   def finish_registration(user_id, device_response)
       when is_binary(user_id) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, user_id}),
-         {:ok, %RegistrationResponse{signature: signature} = response} =
+         {:ok, %RegistrationResponse{} = response} =
            RegistrationResponse.from_json(device_response),
          {:ok, %{"clientData" => client_data}} <- Jason.decode(device_response),
          :ok <- Crypto.verify_registration_response(response, client_data),
@@ -98,10 +99,10 @@ defmodule U2FEx do
          {:ok, %{public_key: public_key}} <-
            @pki_storage.get_public_key_for_user(
              user_id,
-             sign_response.key_handle |> Crypto.b64_encode()
+             sign_response.key_handle |> Utils.b64_encode()
            ),
          :ok <-
-           Crypto.verify_authentication_response(sign_response, public_key |> Crypto.b64_decode()) do
+           Crypto.verify_authentication_response(sign_response, public_key |> Utils.b64_decode()) do
       :ok
     end
   end

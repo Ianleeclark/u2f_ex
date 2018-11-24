@@ -8,9 +8,10 @@ defmodule U2FEx.RegistrationResponse do
           signature: binary()
         }
 
-  alias U2FEx.Utils.Crypto
   alias U2FEx.KeyMetadata
+  alias U2FEx.Utils
 
+  @app_id Application.get_env(:u2f_ex, :app_id)
   @public_key_len 65 * 8
   @key_handle_length_len 1 * 8
 
@@ -67,7 +68,7 @@ defmodule U2FEx.RegistrationResponse do
       {:ok, decoded} ->
         decoded
         |> Map.get("registrationData")
-        |> Crypto.b64_decode()
+        |> Utils.b64_decode()
         |> from_binary()
 
       {:error, %Jason.DecodeError{}} ->
@@ -82,8 +83,8 @@ defmodule U2FEx.RegistrationResponse do
   def to_key_metadata(%__MODULE__{} = response) do
     {:ok,
      KeyMetadata.new(
-       response.public_key |> Crypto.b64_encode(),
-       response.key_handle |> Crypto.b64_encode(),
+       response.public_key |> Utils.b64_encode(),
+       response.key_handle |> Utils.b64_encode(),
        @app_id
      )}
   end

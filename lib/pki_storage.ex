@@ -1,6 +1,7 @@
 defmodule PKIStorage do
   @moduledoc false
-  @behaviour U2FEx.PKIStorageBehaviour
+  alias U2FEx.PKIStorageBehaviour
+  @behaviour PKIStorageBehaviour
 
   @impl PKIStorageBehaviour
   def list_key_handles_for_user(_user_id) do

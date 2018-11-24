@@ -1,7 +1,7 @@
 defmodule U2FEx.Utils.Crypto do
   @moduledoc false
 
-  alias U2FEx.{SignResponse, RegistrationResponse}
+  alias U2FEx.{SignResponse, RegistrationResponse, Utils}
 
   @doc """
   Hashes the input text using sha256
@@ -20,7 +20,7 @@ defmodule U2FEx.Utils.Crypto do
   def generate_challenge(num_bytes \\ 32) when num_bytes > @min_challenge_num_bytes do
     num_bytes
     |> :crypto.strong_rand_bytes()
-    |> b64_encode
+    |> Utils.b64_encode()
   end
 
   @doc """
@@ -37,7 +37,7 @@ defmodule U2FEx.Utils.Crypto do
         },
         client_data
       ) do
-    decoded_client_data = b64_decode(client_data)
+    decoded_client_data = Utils.b64_decode(client_data)
     client_data_map = decoded_client_data |> Jason.decode!()
 
     constructed_string =
@@ -70,7 +70,6 @@ defmodule U2FEx.Utils.Crypto do
         %SignResponse{
           signature: signature,
           app_id: app_id,
-          challenge: challenge,
           user_presence: user_presence,
           counter: counter,
           client_data: client_data
@@ -90,25 +89,6 @@ defmodule U2FEx.Utils.Crypto do
       false ->
         {:error, :signature_verification_failed}
     end
-  end
-
-  # TODO(ian): Move these into generic utils module, doesn't belong in crypto-specific
-  @doc """
-  Simple wrapper around Base.encode64(padding: false) because I always forget padding.
-  """
-  @spec b64_encode(data_to_encode :: String.t()) :: String.t()
-  def b64_encode(data_to_encode) do
-    data_to_encode
-    |> Base.url_encode64(padding: false)
-  end
-
-  @doc """
-  Simple wrapper around Base.decode64(padding: false) because I always forget padding.
-  """
-  @spec b64_decode(data_to_decode :: String.t()) :: String.t()
-  def b64_decode(data_to_decode) do
-    data_to_decode
-    |> Base.url_decode64!(padding: false)
   end
 
   ##############################
