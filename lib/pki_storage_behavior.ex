@@ -46,5 +46,6 @@ defmodule U2FEx.PKIStorageBehaviour do
 
   @doc """
   """
-  @callback get_public_key_for_user(user_id :: any(), key_handle :: b64_string()) :: b64_string()
+  @callback get_public_key_for_user(user_id :: any(), key_handle :: b64_string()) ::
+              {:ok, b64_string()} | {:error, :public_key_not_found}
 end

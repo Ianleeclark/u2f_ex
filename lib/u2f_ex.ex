@@ -96,14 +96,15 @@ defmodule U2FEx do
           :ok | {:error, :signature_verification_failed} | {:error, atom()}
   def finish_authentication(user_id, device_response) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
-         {:ok, %{public_key: public_key}} <-
+         {:ok, public_key} <-
            @pki_storage.get_public_key_for_user(
              user_id,
              sign_response.key_handle |> Utils.b64_encode()
            ),
-         :ok <-
-           Crypto.verify_authentication_response(sign_response, public_key |> Utils.b64_decode()) do
+         :ok <- Crypto.verify_authentication_response(sign_response, Utils.b64_decode(public_key)) do
       :ok
+    else
+      {:error, :public_key_not_found} = error -> error
     end
   end
 end
