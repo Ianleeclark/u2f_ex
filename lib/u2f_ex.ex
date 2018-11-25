@@ -24,15 +24,25 @@ defmodule U2FEx do
   Begins a registration request by creating a challenge. You should send the resulting data to the
   u2f device.
   """
-  @spec start_registration(user_id :: String.t()) :: map() | {:error, :failed_to_store_challenge}
+  @spec start_registration(user_id :: String.t()) ::
+          {:ok,
+           registration_request :: %{
+             required(:version) => String.t(),
+             required(:challenge) => String.t(),
+             required(:appId) => String.t()
+           }}
+          | {:error, :failed_to_store_challenge}
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
     case GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}) do
       :ok ->
-        challenge
-        |> RegistrationRequest.new(@app_id)
-        |> RegistrationRequest.to_map()
+        registration_request =
+          challenge
+          |> RegistrationRequest.new(@app_id)
+          |> RegistrationRequest.to_map()
+
+        {:ok, registration_request}
 
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
@@ -64,8 +74,14 @@ defmodule U2FEx do
   Starts authentication by using the previously stored key metadata to force the requesting
   user prove their identity. Send the resulting map to the u2f device.
   """
-  @spec start_authentication(user_id :: any()) :: {:ok, SignRequest.t()} | {:error, atom()}
-  def start_authentication(user_id) do
+  @spec start_authentication(user_id :: String.t()) ::
+          {:ok,
+           auth_request :: %{
+             required(:challenge) => String.t(),
+             required(:registered_keys) => [map()]
+           }}
+          | {:error, atom()}
+  def start_authentication(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
     with {:ok, user_keys} when is_list(user_keys) <-
@@ -81,10 +97,13 @@ defmodule U2FEx do
           )
         end)
 
-      challenge
-      |> SignRequest.new(registered_keys)
-      |> elem(1)
-      |> SignRequest.to_map()
+      auth_request =
+        challenge
+        |> SignRequest.new(registered_keys)
+        |> elem(1)
+        |> SignRequest.to_map()
+
+      {:ok, auth_request}
     end
   end
 
@@ -92,9 +111,13 @@ defmodule U2FEx do
   Finishes authentication. Once this has passed, the user is deemed to have sufficiently
   proved their identity.
   """
-  @spec finish_authentication(user_id :: any(), device_response :: binary()) ::
-          :ok | {:error, :signature_verification_failed} | {:error, atom()}
-  def finish_authentication(user_id, device_response) do
+  @spec finish_authentication(user_id :: String.t(), device_response :: binary()) ::
+          :ok
+          | {:error, :signature_verification_failed}
+          | {:error, :public_key_not_found}
+          | {:error, atom()}
+  def finish_authentication(user_id, device_response)
+      when is_binary(user_id) and is_binary(device_response) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
            @pki_storage.get_public_key_for_user(
@@ -104,7 +127,7 @@ defmodule U2FEx do
          :ok <- Crypto.verify_authentication_response(sign_response, Utils.b64_decode(public_key)) do
       :ok
     else
-      {:error, :public_key_not_found} = error -> error
+      error -> error
     end
   end
 end

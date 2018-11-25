@@ -4,7 +4,7 @@ defmodule U2fEx.MixProject do
   def project do
     [
       app: :u2f_ex,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -26,7 +26,8 @@ defmodule U2fEx.MixProject do
       {:ex_doc, "~> 0.18", only: :dev, runtime: false},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.1"},
-      {:x509, "~> 0.2.0"}
+      {:x509, "~> 0.2.0"},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false}
     ]
   end
 

@@ -85,7 +85,8 @@ defmodule U2FEx.RegistrationResponse do
      KeyMetadata.new(
        response.public_key |> Utils.b64_encode(),
        response.key_handle |> Utils.b64_encode(),
-       @app_id
+       @app_id,
+       "U2F_V2"
      )}
   end
 
@@ -93,7 +94,7 @@ defmodule U2FEx.RegistrationResponse do
   # Private Internal Functions #
   ##############################
 
-  @spec certificate_length(binary) :: binary()
+  @spec certificate_length(binary()) :: number()
   defp certificate_length(<<_res::8, 0::1, len::7, _rest::binary>>) do
     len * 8
   end

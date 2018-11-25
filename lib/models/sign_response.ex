@@ -6,7 +6,7 @@ defmodule U2FEx.SignResponse do
           challenge: String.t(),
           app_id: String.t(),
           user_presence: binary(),
-          counter: number(),
+          counter: binary(),
           signature: binary(),
           client_data: String.t()
         }
@@ -14,7 +14,6 @@ defmodule U2FEx.SignResponse do
   alias U2FEx.Utils
 
   @counter_len 4 * 8
-
   @app_id Application.get_env(:u2f_ex, :app_id)
 
   @required_keys [
@@ -37,8 +36,8 @@ defmodule U2FEx.SignResponse do
           user_presence :: binary(),
           counter :: binary(),
           signature :: binary(),
-          client_data :: binary()
-        ) :: {:ok, __MODULE__.t()}
+          client_data :: String.t()
+        ) :: {:ok, %__MODULE__{}}
   def new(key_handle, challenge, user_presence, counter, signature, client_data)
       when is_binary(key_handle) and is_binary(user_presence) and is_binary(counter) and
              is_binary(signature) and is_binary(challenge) do
