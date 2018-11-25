@@ -12,7 +12,6 @@ defmodule U2FEx.SignResponse do
         }
 
   alias U2FEx.Utils
-  alias U2FEx.Utils.Crypto
 
   @counter_len 4 * 8
 
