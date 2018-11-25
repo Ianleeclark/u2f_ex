@@ -54,7 +54,8 @@ defmodule U2FEx.Utils.Crypto do
            constructed_string,
            :sha256,
            signature,
-           certificate_public_key
+           certificate_public_key,
+           []
          ) do
       true ->
         :ok
@@ -65,15 +66,17 @@ defmodule U2FEx.Utils.Crypto do
   end
 
   @spec verify_authentication_response(SignResponse.t(), public_key :: binary()) ::
-          :ok | {:error, atom()}
+          :ok | {:error, :signature_verification_failed}
   def verify_authentication_response(
         %SignResponse{
           signature: signature,
           app_id: app_id,
           user_presence: user_presence,
           counter: counter,
-          client_data: client_data
-        },
+          client_data: client_data,
+          key_handle: _key_handle,
+          challenge: _challenge
+        } = _sign_response,
         public_key
       )
       when is_binary(public_key) do

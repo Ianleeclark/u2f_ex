@@ -81,7 +81,7 @@ defmodule U2FEx do
              required(:registered_keys) => [map()]
            }}
           | {:error, atom()}
-  def start_authentication(user_id) do
+  def start_authentication(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
     with {:ok, user_keys} when is_list(user_keys) <-
@@ -116,7 +116,8 @@ defmodule U2FEx do
           | {:error, :signature_verification_failed}
           | {:error, :public_key_not_found}
           | {:error, atom()}
-  def finish_authentication(user_id, device_response) do
+  def finish_authentication(user_id, device_response)
+      when is_binary(user_id) and is_binary(device_response) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
            @pki_storage.get_public_key_for_user(
@@ -126,7 +127,7 @@ defmodule U2FEx do
          :ok <- Crypto.verify_authentication_response(sign_response, Utils.b64_decode(public_key)) do
       :ok
     else
-      {:error, :public_key_not_found} = error -> error
+      error -> error
     end
   end
 end

@@ -94,7 +94,7 @@ defmodule U2FEx.RegistrationResponse do
   # Private Internal Functions #
   ##############################
 
-  @spec certificate_length(binary) :: binary()
+  @spec certificate_length(binary()) :: number()
   defp certificate_length(<<_res::8, 0::1, len::7, _rest::binary>>) do
     len * 8
   end
