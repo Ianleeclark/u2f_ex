@@ -22,3 +22,11 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 u2f_ex-*.tar
 
+example/_build
+example/cover
+example/deps/
+example/doc
+example/.fetch
+example/*.ez
+example/erl_crash.dump
+example/example-*.tar
