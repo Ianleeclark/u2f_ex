@@ -34,6 +34,10 @@ defmodule U2FEx.Utils.ChallengeStore do
     case retrieve_challenge(state, challenge) do
       {:ok, _challenge} = response ->
         {:reply, response, state}
+
+      {:error, retval} ->
+        Logger.error("Failed to retrieve challenge for U2FEx. Reason: #{Atom.to_string(retval)}")
+        {:reply, {:error, retval}, state}
     end
   end
 

@@ -54,8 +54,7 @@ defmodule U2FEx.Utils.Crypto do
            constructed_string,
            :sha256,
            signature,
-           certificate_public_key,
-           []
+           certificate_public_key
          ) do
       true ->
         :ok
