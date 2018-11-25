@@ -20,5 +20,9 @@ defmodule ExampleWeb.Router do
     get("/", PageController, :index)
 
     resources("/users", UserController)
+    post("/u2f/start_registration", U2FController, :start_registration)
+    post("/u2f/finish_registration", U2FController, :finish_registration)
+    post("/u2f/start_authentication", U2FController, :start_authentication)
+    post("/u2f/finish_authentication", U2FController, :finish_authentication)
   end
 end

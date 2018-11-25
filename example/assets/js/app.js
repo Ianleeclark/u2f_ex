@@ -1,21 +1,62 @@
-// Brunch automatically concatenates all files in your
-// watched paths. Those paths can be configured at
-// config.paths.watched in "brunch-config.js".
-//
-// However, those files will only be executed if
-// explicitly imported. The only exception are files
-// in vendor, which are never wrapped in imports and
-// therefore are always executed.
+import "phoenix_html";
+import $ from "jquery";
+import * as u2f from "u2f-api";
 
-// Import dependencies
-//
-// If you no longer want to use a dependency, remember
-// to also remove its path from "config.paths.watched".
-import "phoenix_html"
+const appId = "https://localhost";
 
-// Import local files
-//
-// Local files can be imported directly using relative
-// paths "./socket" or full ones "web/static/js/socket".
+$(document).ready(() => {
+  const post = (url, csrf, data) => {
+    return $.ajax({
+      url: url,
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json",
+      data: JSON.stringify(data),
+      beforeSend: xhr => {
+        xhr.setRequestHeader("X-CSRF-TOKEN", csrf);
+      }
+    });
+  };
 
-// import socket from "./socket"
+  $("#register").click(() => {
+    const csrf = $("meta[name='csrf-token']").attr("content");
+    post("/u2f/start_registration", csrf).then(
+      ({ appId, registerRequests, registeredKeys }) => {
+        u2f.register(registerRequests, registeredKeys).then(response => {
+          post("/u2f/finish_registration", csrf, response)
+            .then(x => console.log(x), error => console.log(error))
+            .catch(err => console.error("CATCH: ", err));
+        });
+      },
+      error => {
+        console.log("ERRR: ", error);
+      }
+    );
+  });
+
+  $("#sign").click(() => {
+    const csrf = $("meta[name='csrf-token']").attr("content");
+    post("/u2f/start_authentication", csrf).then(
+      ({ challenge, registered_keys }) => {
+        // TODO(ian): Make sure to return registeredKeys instead of snake case
+        const output = registered_keys.map(
+          ({ appId, keyHandle, transports, version }) => {
+            return { keyHandle, version, appId, challenge };
+          }
+        );
+        u2f
+          .sign(output)
+          .then(x =>
+            post("/u2f/finish_authentication", csrf, x).then(x =>
+              console.log(x)
+            )
+          )
+          .catch("CATCH: ", err);
+        console.log("sign: ", response);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+  });
+});

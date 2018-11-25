@@ -26,7 +26,7 @@ defmodule Example.Users.U2FKey do
   @doc false
   def validate_b64_string(changeset, field, opts \\ []) do
     validate_change(changeset, field, fn _, value ->
-      case Base.decode64(value, padding: false) do
+      case Base.url_decode64(value, padding: false) do
         {:ok, _result} ->
           []
 
