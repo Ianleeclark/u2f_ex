@@ -27,10 +27,6 @@ defmodule U2FEx.Utils.ChallengeStore do
     case store_challenge(state, username, challenge) do
       :ok ->
         {:reply, :ok, state}
-
-      {:error, retval} ->
-        Logger.error("Failed to store challenge for U2FEx. Reason: #{Atom.to_string(retval)}")
-        {:reply, {:error, retval}, state}
     end
   end
 
@@ -49,20 +45,12 @@ defmodule U2FEx.Utils.ChallengeStore do
     case remove_challenge(state, username) do
       true ->
         {:reply, :ok, state}
-
-      false ->
-        Logger.error("Failed to remove challenge for U2FEx.")
-        {:reply, {:error, :no_challenge_found}, state}
     end
   end
 
   def handle_cast({:store_challenge, username, challenge}, _from, state) do
     case store_challenge(state, username, challenge) do
       :ok ->
-        {:noreply, state}
-
-      {:error, retval} ->
-        Logger.error("Failed to store challenge for U2FEx. Reason: #{Atom.to_string(retval)}")
         {:noreply, state}
     end
   end
