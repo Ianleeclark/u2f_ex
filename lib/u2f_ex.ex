@@ -100,7 +100,10 @@ defmodule U2FEx do
   proved their identity.
   """
   @spec finish_authentication(user_id :: String.t(), device_response :: binary()) ::
-          :ok | {:error, :signature_verification_failed} | {:error, atom()}
+          :ok
+          | {:error, :signature_verification_failed}
+          | {:error, :public_key_not_found}
+          | {:error, atom()}
   def finish_authentication(user_id, device_response) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
