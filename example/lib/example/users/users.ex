@@ -101,4 +101,22 @@ defmodule Example.Users do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  alias Example.Users.U2FKey
+  alias U2FEx.KeyMetadata
+
+  @spec create_u2f_key(user_id :: any(), KeyMetadata.t()) :: {:ok, U2FKey.t()} | {:error, any()}
+  def create_u2f_key(user_id, %KeyMetadata{} = key_metadata) do
+    attrs = %{
+      public_key: key_metadata.public_key,
+      key_handle: key_metadata.key_handle,
+      version: Map.get(key_metadata, :version, nil),
+      app_id: key_metadata.app_id,
+      user_id: user_id
+    }
+
+    %U2FKey{}
+    |> U2FKey.changeset(attrs)
+    |> Repo.insert()
+  end
 end

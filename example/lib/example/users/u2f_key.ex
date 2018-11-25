@@ -2,11 +2,14 @@ defmodule Example.Users.U2FKey do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Example.Users.User
+
   schema "u2f_keys" do
-    field(:public_key, :string, size: 128)
-    field(:key_handle, :string, size: 128)
-    field(:version, :string, size: 10, default: "U2F_V2")
-    field(:app_id, :string)
+    field(:public_key, :string, size: 128, null: false)
+    field(:key_handle, :string, size: 128, null: false)
+    field(:version, :string, size: 10, null: false, default: "U2F_V2")
+    field(:app_id, :string, null: false)
+    belongs_to(:user, User)
 
     timestamps()
   end
@@ -14,8 +17,8 @@ defmodule Example.Users.U2FKey do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:public_key, :key_handle, :version, :app_id])
-    |> validate_required([:public_key, :key_handle, :app_id])
+    |> cast(attrs, [:public_key, :key_handle, :version, :app_id, :user_id])
+    |> validate_required([:public_key, :key_handle, :version, :app_id, :user_id])
     |> validate_b64_string(:public_key)
     |> validate_b64_string(:key_handle)
   end
