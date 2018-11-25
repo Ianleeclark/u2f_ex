@@ -35,7 +35,11 @@ defmodule U2FEx.RegistrationRequest do
   @doc """
   Serializes a RegistrationRequest to a map so that the calling application can use it.
   """
-  @spec to_map(__MODULE__.t()) :: map()
+  @spec to_map(__MODULE__.t()) :: %{
+          required(:version) => String.t(),
+          required(:challenge) => String.t(),
+          required(:appId) => String.t()
+        }
   def to_map(%__MODULE__{challenge: challenge, app_id: app_id}) do
     %{
       version: "U2F_V2",

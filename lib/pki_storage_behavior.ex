@@ -13,7 +13,7 @@ defmodule U2FEx.PKIStorageBehaviour do
     alias App.U2FKeys
 
     @impl PKIStorageBehaviour
-    def list_key_handles_for_user(user_id :: String.t()) do
+    def list_key_handles_for_user(user_id) do
       q =
       from(u in U2FKeys,
       where: u.id == ^user_id
@@ -33,7 +33,7 @@ defmodule U2FEx.PKIStorageBehaviour do
 
   @doc """
   """
-  @callback list_key_handles_for_user(user_id :: any()) ::
+  @callback list_key_handles_for_user(user_id :: String.t()) ::
               {:ok,
                [
                  %{
@@ -46,6 +46,6 @@ defmodule U2FEx.PKIStorageBehaviour do
 
   @doc """
   """
-  @callback get_public_key_for_user(user_id :: any(), key_handle :: b64_string()) ::
+  @callback get_public_key_for_user(user_id :: String.t(), key_handle :: b64_string()) ::
               {:ok, b64_string()} | {:error, :public_key_not_found}
 end

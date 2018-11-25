@@ -85,7 +85,8 @@ defmodule U2FEx.RegistrationResponse do
      KeyMetadata.new(
        response.public_key |> Utils.b64_encode(),
        response.key_handle |> Utils.b64_encode(),
-       @app_id
+       @app_id,
+       "U2F_V2"
      )}
   end
 
