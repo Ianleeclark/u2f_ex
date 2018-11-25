@@ -37,9 +37,12 @@ defmodule U2FEx do
 
     case GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}) do
       :ok ->
-        challenge
-        |> RegistrationRequest.new(@app_id)
-        |> RegistrationRequest.to_map()
+        registration_request =
+          challenge
+          |> RegistrationRequest.new(@app_id)
+          |> RegistrationRequest.to_map()
+
+        {:ok, registration_request}
 
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
@@ -71,7 +74,13 @@ defmodule U2FEx do
   Starts authentication by using the previously stored key metadata to force the requesting
   user prove their identity. Send the resulting map to the u2f device.
   """
-  @spec start_authentication(user_id :: String.t()) :: {:ok, SignRequest.t()} | {:error, atom()}
+  @spec start_authentication(user_id :: String.t()) ::
+          {:ok,
+           auth_request :: %{
+             required(:challenge) => String.t(),
+             required(:registered_keys) => [map()]
+           }}
+          | {:error, atom()}
   def start_authentication(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
@@ -88,10 +97,13 @@ defmodule U2FEx do
           )
         end)
 
-      challenge
-      |> SignRequest.new(registered_keys)
-      |> elem(1)
-      |> SignRequest.to_map()
+      auth_request =
+        challenge
+        |> SignRequest.new(registered_keys)
+        |> elem(1)
+        |> SignRequest.to_map()
+
+      {:ok, auth_request}
     end
   end
 
