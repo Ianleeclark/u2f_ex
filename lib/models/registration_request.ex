@@ -65,9 +65,11 @@ defmodule U2FEx.RegistrationRequest do
       when is_list(keys) do
     %{
       registerRequests: [
-        version: version,
-        challenge: Utils.b64_encode(challenge),
-        appId: app_id
+        %{
+          version: version,
+          challenge: Utils.b64_encode(challenge),
+          appId: app_id
+        }
       ],
       registeredKeys: Enum.map(keys, &RegisteredKey.to_map/1)
     }
