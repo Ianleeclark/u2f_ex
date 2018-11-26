@@ -12,21 +12,10 @@ defmodule ExampleWeb.U2FController do
   """
   def start_registration(conn, _params) do
     with {:ok, registration_data} <- U2FEx.start_registration(get_user_id(conn)) do
-      output = %{
-        registerRequests: [
-          %{
-            appId: registration_data.appId,
-            padding: false,
-            version: "U2F_V2",
-            challenge: registration_data.challenge,
-            padding: false
-          }
-        ],
-        registeredKeys: []
-      }
+      IO.inspect(registration_data)
 
       conn
-      |> json(output)
+      |> json(registration_data)
     end
   end
 
@@ -43,7 +32,7 @@ defmodule ExampleWeb.U2FController do
       conn
       |> json(%{"success" => true})
     else
-      error ->
+      _error ->
         conn |> put_status(:bad_request) |> json(%{"success" => false})
     end
   end

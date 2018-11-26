@@ -1,10 +1,9 @@
 import "phoenix_html";
 import $ from "jquery";
-import * as u2f from "u2f-api";
-
-const appId = "https://localhost";
 
 $(document).ready(() => {
+  const appId = "https://localhost";
+  const u2f = window.u2f;
   const post = (url, csrf, data) => {
     return $.ajax({
       url: url,
@@ -22,7 +21,9 @@ $(document).ready(() => {
     const csrf = $("meta[name='csrf-token']").attr("content");
     post("/u2f/start_registration", csrf).then(
       ({ appId, registerRequests, registeredKeys }) => {
-        u2f.register(registerRequests, registeredKeys).then(response => {
+        console.log(registerRequests);
+        console.log(registeredKeys);
+        u2f.register(appId, registerRequests, registeredKeys).then(response => {
           post("/u2f/finish_registration", csrf, response)
             .then(x => console.log(x), error => console.log(error))
             .catch(err => console.error("CATCH: ", err));
