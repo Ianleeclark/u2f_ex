@@ -55,6 +55,10 @@ defmodule U2FEx do
   """
   @spec finish_registration(user_id :: String.t(), device_response :: binary) ::
           {:ok, KeyMetadata.t()}
+  def finish_registration(user_id, device_response) when is_map(device_response) do
+    finish_registration(user_id, Jason.encode!(device_response))
+  end
+
   def finish_registration(user_id, device_response)
       when is_binary(user_id) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, user_id}),

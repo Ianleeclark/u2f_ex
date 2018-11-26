@@ -43,8 +43,8 @@ defmodule U2FEx.RegistrationRequest do
   def to_map(%__MODULE__{challenge: challenge, app_id: app_id}) do
     %{
       version: "U2F_V2",
-      challenge: Utils.b64_encode(challenge),
-      appId: Utils.b64_encode(app_id)
+      challenge: challenge,
+      appId: app_id
     }
   end
 end
