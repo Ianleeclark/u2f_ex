@@ -5,37 +5,37 @@ defmodule ExampleWeb.U2FController do
   alias Example.Users.U2FKey
   alias U2FEx.KeyMetadata
 
-  # TODO(ian): Add docs about how to use.
   @doc """
+  This is the first interaction in the u2f flow. We'll challenge the u2f token to
+  provide a public key and sign our challenge (+ other info) proving their ownership
+  of the corresponding private key.
   """
   def start_registration(conn, _params) do
     with {:ok, registration_data} <- U2FEx.start_registration(get_user_id(conn)) do
-      # TODO(ian): Update appId to not be b64 encoded
       output = %{
         registerRequests: [
           %{
-            appId: Base.url_decode64!(registration_data.appId, padding: false),
+            appId: registration_data.appId,
+            padding: false,
             version: "U2F_V2",
-            challenge: Base.url_decode64!(registration_data.challenge, padding: false)
+            challenge: registration_data.challenge,
+            padding: false
           }
         ],
         registeredKeys: []
       }
-
-      IO.inspect(output)
 
       conn
       |> json(output)
     end
   end
 
-  # TODO(ian): Add docs about how to use.
   @doc """
+  This is the second step of the registration where we'll store their key metadata for
+  use later in the authentication portion of the flow.
   """
   def finish_registration(conn, device_response) do
     user_id = get_user_id(conn)
-    # TODO(ian): Make U2FEx.finish_reg take a map instead of forcing this
-    device_response = device_response |> Jason.encode!()
 
     with {:ok, %KeyMetadata{} = key_metadata} <-
            U2FEx.finish_registration(user_id, device_response),
@@ -44,13 +44,13 @@ defmodule ExampleWeb.U2FController do
       |> json(%{"success" => true})
     else
       error ->
-        IO.inspect(error)
         conn |> put_status(:bad_request) |> json(%{"success" => false})
     end
   end
 
-  # TODO(ian): Add docs about how to use.
   @doc """
+  Should the user be logging in, and they have a u2f key registered in our system, we
+  should challenge that user to prove their identity and ownership of the u2f device.
   """
   def start_authentication(conn, _params) do
     with {:ok, %{} = sign_request} <- U2FEx.start_authentication(get_user_id(conn)) do
@@ -59,8 +59,10 @@ defmodule ExampleWeb.U2FController do
     end
   end
 
-  # TODO(ian): Add docs about how to use.
   @doc """
+  After the user has attempted to verify their identity, U2FEx will verify they actually who are
+  they say they are. Once this step has exited successfully, then we can be reasonably assured the
+  user is who they claim to be.
   """
   def finish_authentication(conn, device_response) do
     with :ok <- U2FEx.finish_authentication(get_user_id(conn), device_response |> Jason.encode!()) do
