@@ -35,15 +35,16 @@ defmodule U2FEx do
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
-    case GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}) do
-      :ok ->
-        registration_request =
-          challenge
-          |> RegistrationRequest.new(@app_id)
-          |> RegistrationRequest.to_map()
+    with :ok <- GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}),
+         {:ok, registered_keys} <- @pki_storage.list_key_handles_for_user(user_id) do
+      registration_request =
+        challenge
+        |> RegistrationRequest.new(@app_id)
+        |> RegistrationRequest.to_map([])
+        |> Map.put(:registeredKeys, registered_keys)
 
-        {:ok, registration_request}
-
+      {:ok, registration_request}
+    else
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
     end

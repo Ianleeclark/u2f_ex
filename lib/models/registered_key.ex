@@ -1,13 +1,14 @@
 defmodule U2FEx.RegisteredKey do
   @moduledoc false
+  @type b64_string() :: String.t()
   @type t :: %__MODULE__{
           version: String.t(),
-          keyHandle: String.t(),
-          appId: String.t(),
+          key_handle: String.t(),
+          app_id: String.t(),
           transports: [map()]
         }
 
-  @required_keys [:version, :keyHandle, :appId, :transports]
+  @required_keys [:version, :key_handle, :app_id, :transports]
   defstruct @required_keys
 
   @spec new(
@@ -20,9 +21,19 @@ defmodule U2FEx.RegisteredKey do
     struct!(
       __MODULE__,
       version: version,
-      keyHandle: key_handle,
-      appId: app_id,
+      key_handle: key_handle,
+      app_id: app_id,
       transports: transports
     )
+  end
+
+  @spec to_map(__MODULE__.t()) :: %{
+          required(:version) => String.t(),
+          required(:keyHandle) => b64_string,
+          required(:appId) => String.t(),
+          required(:transports) => [any()]
+        }
+  def to_map(%__MODULE__{version: version, key_handle: kh, app_id: appId, transports: transports}) do
+    %{version: version, keyHandle: Utils.b64_encode(kh), appId: appId, transports: transports}
   end
 end
