@@ -13,10 +13,9 @@ defmodule Example.PKIStorage do
   def list_key_handles_for_user(user_id) do
     q =
       from(u in U2FKey,
-        where: u.id == ^user_id
+        where: u.user_id == ^user_id
       )
 
-    # TODO(ian): Only returning one key?
     q
     |> Repo.all()
     |> Enum.map(fn %U2FKey{version: version, key_handle: key_handle, app_id: app_id} ->
