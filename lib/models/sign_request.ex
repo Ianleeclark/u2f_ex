@@ -41,7 +41,7 @@ defmodule U2FEx.SignRequest do
   def to_map(%__MODULE__{challenge: challenge, registered_keys: registered_keys}) do
     %{
       challenge: challenge,
-      registered_keys: registered_keys
+      registeredKeys: Enum.map(registered_keys, &RegisteredKey.to_map/1)
     }
   end
 end

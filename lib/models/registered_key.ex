@@ -8,6 +8,8 @@ defmodule U2FEx.RegisteredKey do
           transports: [map()]
         }
 
+  alias U2FEx.Utils
+
   @required_keys [:version, :key_handle, :app_id, :transports]
   defstruct @required_keys
 
