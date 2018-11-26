@@ -37,7 +37,7 @@ defmodule U2FEx.RegisteredKey do
         }
 
   def to_map(%{version: version, key_handle: kh, app_id: appId}) do
-    %{version: version, keyHandle: kh, appId: appId}
+    %{version: version, keyHandle: Utils.b64_encode(kh), appId: appId}
   end
 
   def to_map(%{version: version, key_handle: kh, app_id: appId, transports: transports}) do
