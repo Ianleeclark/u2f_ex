@@ -40,8 +40,7 @@ defmodule U2FEx do
       registration_request =
         challenge
         |> RegistrationRequest.new(@app_id)
-        |> RegistrationRequest.to_map([])
-        |> Map.put(:registeredKeys, registered_keys)
+        |> RegistrationRequest.to_map(registered_keys)
 
       {:ok, registration_request}
     else

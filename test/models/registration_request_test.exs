@@ -49,8 +49,10 @@ defmodule U2FExTest.RegistrationRequestTest do
       map_to_test = RegistrationRequest.to_map(request, [])
       assert is_map(map_to_test)
 
-      assert Utils.b64_decode(Access.get(map_to_test.registerRequests, :challenge)) == challenge
-      assert Access.get(map_to_test.registerRequests, :appId) == app_id
+      assert Utils.b64_decode(Map.get(map_to_test.registerRequests |> hd, :challenge)) ==
+               challenge
+
+      assert Map.get(map_to_test.registerRequests |> hd, :appId) == app_id
       assert map_to_test.registeredKeys == []
     end
   end

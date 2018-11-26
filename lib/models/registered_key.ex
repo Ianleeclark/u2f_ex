@@ -33,6 +33,15 @@ defmodule U2FEx.RegisteredKey do
           required(:appId) => String.t(),
           required(:transports) => [any()]
         }
+
+  def to_map(%{version: version, key_handle: kh, app_id: appId}) do
+    %{version: version, keyHandle: kh, appId: appId}
+  end
+
+  def to_map(%{version: version, key_handle: kh, app_id: appId, transports: transports}) do
+    %{version: version, keyHandle: Utils.b64_encode(kh), appId: appId, transports: transports}
+  end
+
   def to_map(%__MODULE__{version: version, key_handle: kh, app_id: appId, transports: transports}) do
     %{version: version, keyHandle: Utils.b64_encode(kh), appId: appId, transports: transports}
   end
