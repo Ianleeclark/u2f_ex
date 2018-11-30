@@ -72,7 +72,11 @@ defmodule U2FEx.SignResponse do
     )
   end
 
-  @spec from_json(device_response :: String.t()) :: {:ok, __MODULE__.t()}
+  @spec from_json(device_response :: String.t() | map) :: {:ok, __MODULE__.t()}
+  def from_json(device_response) when is_map(device_response) do
+    device_response
+  end
+
   def from_json(device_response) do
     decoded_json =
       device_response

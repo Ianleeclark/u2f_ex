@@ -2,6 +2,7 @@ defmodule U2FExTest.SignResponseTest do
   use ExUnit.Case
 
   alias U2FEx.SignResponse
+  alias U2FEx.Utils
   alias U2FEx.Utils.Crypto
 
   @testdata1 %{
@@ -47,6 +48,21 @@ defmodule U2FExTest.SignResponseTest do
 
         assert :ok == Crypto.verify_authentication_response(sign_response, @public_key)
       end)
+    end
+
+    test "ensure from_json/1 returns same when map or string" do
+      input_data = %{
+        signatureData: "testSignature" |> Utils.b64_encode(),
+        clientData: "testClient" |> Utils.b64_encode(),
+        keyHandle: "testKeyHandle"
+      }
+
+      string_data = Jason.encode!(input_data)
+      map_data = input_data
+
+      assert SignResponse.from_json(map_data).clientData == input_data.clientData
+      assert SignResponse.from_json(map_data).signatureData == input_data.signatureData
+      assert SignResponse.from_json(map_data).keyHandle == input_data.keyHandle
     end
   end
 end

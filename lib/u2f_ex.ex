@@ -121,7 +121,7 @@ defmodule U2FEx do
           | {:error, :public_key_not_found}
           | {:error, atom()}
   def finish_authentication(user_id, device_response)
-      when is_binary(user_id) and is_binary(device_response) do
+      when is_binary(user_id) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
            @pki_storage.get_public_key_for_user(
