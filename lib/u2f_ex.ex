@@ -62,7 +62,7 @@ defmodule U2FEx do
   def finish_registration(user_id, device_response)
       when is_binary(user_id) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, user_id}),
-         {:ok, %RegistrationResponse{} = response} =
+         {:ok, %RegistrationResponse{} = response} <-
            RegistrationResponse.from_json(device_response),
          {:ok, %{"clientData" => client_data}} <- Jason.decode(device_response),
          :ok <- Crypto.verify_registration_response(response, client_data),
