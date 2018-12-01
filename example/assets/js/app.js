@@ -21,16 +21,14 @@ $(document).ready(() => {
     const csrf = $("meta[name='csrf-token']").attr("content");
     post("/u2f/start_registration", csrf).then(
       ({ appId, registerRequests, registeredKeys }) => {
-        console.log(registerRequests);
-        console.log(registeredKeys);
-        u2f.register(appId, registerRequests, registeredKeys).then(response => {
+        u2f.register(appId, registerRequests, registeredKeys, response => {
           post("/u2f/finish_registration", csrf, response)
-            .then(x => console.log(x), error => console.log(error))
-            .catch(err => console.error("CATCH: ", err));
+            // NOTE: Handle finishing registration here
+                .then(x => console.log("Finished Registration"));
         });
       },
       error => {
-        console.log("ERRR: ", error);
+        console.error(error);
       }
     );
   });
@@ -38,25 +36,17 @@ $(document).ready(() => {
   $("#sign").click(() => {
     const csrf = $("meta[name='csrf-token']").attr("content");
     post("/u2f/start_authentication", csrf).then(
-      ({ challenge, registered_keys }) => {
-        // TODO(ian): Make sure to return registeredKeys instead of snake case
-        const output = registered_keys.map(
-          ({ appId, keyHandle, transports, version }) => {
-            return { keyHandle, version, appId, challenge };
-          }
-        );
+      ({ challenge, registeredKeys }) => {
         u2f
-          .sign(output)
-          .then(x =>
-            post("/u2f/finish_authentication", csrf, x).then(x =>
-              console.log(x)
-            )
-          )
-          .catch("CATCH: ", err);
-        console.log("sign: ", response);
+          .sign(appId, challenge, registeredKeys, response1 => {
+            post("/u2f/finish_authentication", csrf, response1).then(
+              // NOTE: Handle finishing authentication here
+              x => console.log("Finished Authentication")
+            );
+          });
       },
       error => {
-        console.log(error);
+        console.error(error);
       }
     );
   });

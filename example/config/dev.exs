@@ -64,5 +64,5 @@ config :example, Example.Repo,
   pool_size: 10
 
 config :u2f_ex,
-  pki_storage: PKIStorage,
+  pki_storage: Example.PKIStorage,
   app_id: "https://localhost"

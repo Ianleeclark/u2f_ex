@@ -21,6 +21,6 @@
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], [], "hexpm"},
   "postgrex": {:hex, :postgrex, "0.13.5", "3d931aba29363e1443da167a4b12f06dcd171103c424de15e5f3fc2ba3e6d9c5", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}], "hexpm"},
   "ranch": {:hex, :ranch, "1.3.2", "e4965a144dc9fbe70e5c077c65e73c57165416a901bd02ea899cfd95aa890986", [:rebar3], [], "hexpm"},
-  "u2f_ex": {:git, "git@github.com:GrappigPanda/u2f_ex.git", "01965f9c56ed04aefaf2588a1d9e28a760836f17", [branch: "api_fixes"]},
+  "u2f_ex": {:git, "git@github.com:GrappigPanda/u2f_ex.git", "79f91cd859d7c7229501ab89e9e3f0cf44689d2f", [branch: "api_fixes"]},
   "x509": {:hex, :x509, "0.2.0", "254bc17a514fdfd645a7978fac8365232085b01125a5fcc14f1b76349d9085dc", [:mix], [], "hexpm"},
 }

@@ -16,16 +16,19 @@ defmodule Example.PKIStorage do
         where: u.user_id == ^user_id
       )
 
-    q
-    |> Repo.all()
-    |> Enum.map(fn %U2FKey{version: version, key_handle: key_handle, app_id: app_id} ->
-      %{version: version, key_handle: key_handle, app_id: app_id}
-    end)
+    x =
+      q
+      |> Repo.all()
+      |> Enum.map(fn %U2FKey{version: version, key_handle: key_handle, app_id: app_id} ->
+        %{version: version, key_handle: key_handle, app_id: app_id}
+      end)
+
+    {:ok, x}
   end
 
   @impl PKIStorageBehaviour
   def get_public_key_for_user(user_id, key_handle) do
-    q = from(u in U2FKey, where: u.id == ^user_id and u.key_handle == ^key_handle)
+    q = from(u in U2FKey, where: u.user_id == ^user_id and u.key_handle == ^key_handle)
 
     q
     |> Repo.one()

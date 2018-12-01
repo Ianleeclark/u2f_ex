@@ -42,7 +42,7 @@ defmodule ExampleWeb.U2FController do
   should challenge that user to prove their identity and ownership of the u2f device.
   """
   def start_authentication(conn, _params) do
-    with {:ok, %{} = sign_request} <- U2FEx.start_authentication(get_user_id(conn)) do
+    with {:ok, sign_request} <- U2FEx.start_authentication(get_user_id(conn)) do
       conn
       |> json(sign_request)
     end
@@ -54,11 +54,12 @@ defmodule ExampleWeb.U2FController do
   user is who they claim to be.
   """
   def finish_authentication(conn, device_response) do
-    with :ok <- U2FEx.finish_authentication(get_user_id(conn), device_response |> Jason.encode!()) do
+    with :ok <- U2FEx.finish_authentication(get_user_id(conn), device_response) do
       conn
       |> json(%{"success" => true})
     else
-      _ -> json(conn, %{"success" => false})
+      _err ->
+        conn |> put_status(:bad_request) |> json(%{"success" => false})
     end
   end
 
