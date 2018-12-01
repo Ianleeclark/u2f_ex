@@ -20,13 +20,13 @@ defmodule U2FEx.RegistrationResponseTest do
 
     map_data = input_data_atomized
 
-    assert RegistrationResponse.from_json(map_data) |> elem(0) == :ok
+    assert map_data |> RegistrationResponse.from_json() |> elem(0) == :ok
   end
 
   test "ensure from_json/1 with strings" do
     input_data = @testdata1
     string_data = Jason.encode!(input_data)
 
-    assert RegistrationResponse.from_json(string_data) |> elem(0) == :ok
+    assert string_data |> RegistrationResponse.from_json() |> elem(0) == :ok
   end
 end
