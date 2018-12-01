@@ -51,18 +51,27 @@ defmodule U2FExTest.SignResponseTest do
     end
 
     test "ensure from_json/1 returns same when map or string" do
-      input_data = %{
-        signatureData: "testSignature" |> Utils.b64_encode(),
-        clientData: "testClient" |> Utils.b64_encode(),
-        keyHandle: "testKeyHandle"
-      }
+      input_data = @testdata1
 
-      string_data = Jason.encode!(input_data)
-      map_data = input_data
+      input_data_atomized =
+        input_data
+        |> Enum.into(%{}, fn {key, val} when is_atom(key) -> {Atom.to_string(key), val} end)
 
-      assert SignResponse.from_json(map_data).clientData == input_data.clientData
-      assert SignResponse.from_json(map_data).signatureData == input_data.signatureData
-      assert SignResponse.from_json(map_data).keyHandle == input_data.keyHandle
+      string_data = Jason.encode!(input_data_atomized)
+      map_data = input_data_atomized
+
+      {:ok, decoded} = SignResponse.from_json(map_data)
+      assert decoded.client_data == Utils.b64_decode(input_data.clientData)
+      assert decoded.key_handle == Utils.b64_decode(input_data.keyHandle)
     end
+  end
+
+  test "ensure from_json/1 can handle all viable error codes" do
+    error_codes_enumed = [1, 2, 3, 4, 5]
+
+    Enum.map(error_codes_enumed, fn error_code ->
+      sign_response = SignResponse.from_json(%{"errorCode" => error_code})
+      assert elem(sign_response, 0) == :error
+    end)
   end
 end
