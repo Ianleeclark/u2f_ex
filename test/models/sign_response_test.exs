@@ -57,7 +57,6 @@ defmodule U2FExTest.SignResponseTest do
         input_data
         |> Enum.into(%{}, fn {key, val} when is_atom(key) -> {Atom.to_string(key), val} end)
 
-      string_data = Jason.encode!(input_data_atomized)
       map_data = input_data_atomized
 
       {:ok, decoded} = SignResponse.from_json(map_data)

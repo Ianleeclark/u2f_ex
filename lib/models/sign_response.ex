@@ -11,6 +11,7 @@ defmodule U2FEx.SignResponse do
           client_data: String.t()
         }
 
+  alias U2FEx.Errors
   alias U2FEx.Utils
 
   @counter_len 4 * 8
@@ -75,9 +76,9 @@ defmodule U2FEx.SignResponse do
   @spec from_json(device_response :: String.t() | map) :: {:ok, __MODULE__.t()}
   def from_json(
         %{
-          "keyHandle" => key_handle,
-          "clientData" => client_data,
-          "signatureData" => signature_data
+          "keyHandle" => _key_handle,
+          "clientData" => _client_data,
+          "signatureData" => _signature_data
         } = x
       ) do
     do_from_json(x)
@@ -109,15 +110,7 @@ defmodule U2FEx.SignResponse do
              | :u2f_configuration_unsupported
              | :u2f_device_ineligible
              | :u2f_timeout}
-  defp do_from_json(%{"errorCode" => error}) do
-    case error do
-      1 -> {:error, :u2f_other_error}
-      2 -> {:error, :u2f_bad_request}
-      3 -> {:error, :u2f_configuration_unsupported}
-      4 -> {:error, :u2f_device_ineligible}
-      5 -> {:error, :u2f_timeout}
-    end
-  end
+  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
 
   defp do_from_json(%{
          "signatureData" => s,
