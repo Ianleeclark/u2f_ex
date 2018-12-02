@@ -46,7 +46,7 @@ defmodule U2FEx do
         registration_request.registeredKeys
         |> Enum.map(fn %{keyHandle: kh} = key -> %{key | keyHandle: Utils.b64_encode(kh)} end)
 
-      {:ok, Map.put(registration_request, :registeredKeys, x)}
+      {:ok, Map.put(registration_request, :registeredKeys, updated_keys)}
     else
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
