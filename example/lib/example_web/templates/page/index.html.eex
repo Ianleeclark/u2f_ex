@@ -1,0 +1,5 @@
+<%= csrf_meta_tag() %>
+<div>
+<button id='register' type="button" class="btn btn-info">Register</button>
+<button id='sign' type="button" class="btn btn-success">Sign</button>
+</div>
