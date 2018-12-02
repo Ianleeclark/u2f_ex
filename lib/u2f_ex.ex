@@ -35,15 +35,19 @@ defmodule U2FEx do
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
 
-    case GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}) do
-      :ok ->
-        registration_request =
-          challenge
-          |> RegistrationRequest.new(@app_id)
-          |> RegistrationRequest.to_map()
+    with :ok <- GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}),
+         {:ok, registered_keys} <- @pki_storage.list_key_handles_for_user(user_id) do
+      registration_request =
+        challenge
+        |> RegistrationRequest.new(@app_id)
+        |> RegistrationRequest.to_map(registered_keys)
 
-        {:ok, registration_request}
+      updated_keys =
+        registration_request.registeredKeys
+        |> Enum.map(fn %{keyHandle: kh} = key -> %{key | keyHandle: Utils.b64_encode(kh)} end)
 
+      {:ok, Map.put(registration_request, :registeredKeys, updated_keys)}
+    else
       {:error, _reason} ->
         {:error, :failed_to_store_challenge}
     end
@@ -55,10 +59,14 @@ defmodule U2FEx do
   """
   @spec finish_registration(user_id :: String.t(), device_response :: binary) ::
           {:ok, KeyMetadata.t()}
+  def finish_registration(user_id, device_response) when is_map(device_response) do
+    finish_registration(user_id, Jason.encode!(device_response))
+  end
+
   def finish_registration(user_id, device_response)
       when is_binary(user_id) and is_binary(device_response) do
     with {:ok, challenge} <- GenServer.call(ChallengeStore, {:retrieve_challenge, user_id}),
-         {:ok, %RegistrationResponse{} = response} =
+         {:ok, %RegistrationResponse{} = response} <-
            RegistrationResponse.from_json(device_response),
          {:ok, %{"clientData" => client_data}} <- Jason.decode(device_response),
          :ok <- Crypto.verify_registration_response(response, client_data),
@@ -117,7 +125,7 @@ defmodule U2FEx do
           | {:error, :public_key_not_found}
           | {:error, atom()}
   def finish_authentication(user_id, device_response)
-      when is_binary(user_id) and is_binary(device_response) do
+      when is_binary(user_id) do
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
            @pki_storage.get_public_key_for_user(

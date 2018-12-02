@@ -46,11 +46,14 @@ defmodule U2FExTest.RegistrationRequestTest do
       app_id = "https://ianleeclark.com"
       request = RegistrationRequest.new(challenge, app_id)
 
-      map_to_test = RegistrationRequest.to_map(request)
+      map_to_test = RegistrationRequest.to_map(request, [])
       assert is_map(map_to_test)
 
-      assert Utils.b64_decode(map_to_test.challenge) == challenge
-      assert Utils.b64_decode(map_to_test.appId) == app_id
+      assert Utils.b64_decode(Map.get(map_to_test.registerRequests |> hd, :challenge)) ==
+               challenge
+
+      assert Map.get(map_to_test.registerRequests |> hd, :appId) == app_id
+      assert map_to_test.registeredKeys == []
     end
   end
 

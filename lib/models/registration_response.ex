@@ -8,6 +8,7 @@ defmodule U2FEx.RegistrationResponse do
           signature: binary()
         }
 
+  alias U2FEx.Errors
   alias U2FEx.KeyMetadata
   alias U2FEx.Utils
 
@@ -63,17 +64,25 @@ defmodule U2FEx.RegistrationResponse do
   Parses a Json response into a RegistrationResponse
   """
   @spec from_json(String.t()) :: {:ok, __MODULE__.t()} | {:error, atom()}
+  def from_json(json_input) when is_map(json_input), do: do_from_json(json_input)
+
   def from_json(json_input) when is_binary(json_input) do
     case Jason.decode(json_input) do
       {:ok, decoded} ->
-        decoded
-        |> Map.get("registrationData")
-        |> Utils.b64_decode()
-        |> from_binary()
+        do_from_json(decoded)
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
     end
+  end
+
+  @spec do_from_json(map()) :: {:ok, __MODULE__.t()} | {:error, :u2f}
+  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
+
+  defp do_from_json(%{"registrationData" => registration_data}) do
+    registration_data
+    |> Utils.b64_decode()
+    |> from_binary()
   end
 
   @doc """
