@@ -77,13 +77,13 @@ defmodule U2FEx.RegistrationResponse do
   end
 
   @spec do_from_json(map()) :: {:ok, __MODULE__.t()} | {:error, :u2f}
-  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
-
   defp do_from_json(%{"registrationData" => registration_data}) do
     registration_data
     |> Utils.b64_decode()
     |> from_binary()
   end
+
+  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
 
   @doc """
   Exports a RegistrationResponse -> KeyMetadata for finishing registration on consumer applications side.
