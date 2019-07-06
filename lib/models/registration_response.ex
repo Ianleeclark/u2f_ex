@@ -69,7 +69,7 @@ defmodule U2FEx.RegistrationResponse do
   def from_json(json_input) when is_binary(json_input) do
     case Jason.decode(json_input) do
       {:ok, decoded} ->
-        do_from_json(decoded)
+        do_from_json(decoded["registrationData"])
 
       {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
@@ -79,7 +79,7 @@ defmodule U2FEx.RegistrationResponse do
   @spec do_from_json(map()) :: {:ok, __MODULE__.t()} | {:error, :u2f}
   defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
 
-  defp do_from_json(%{"registrationData" => registration_data}) do
+  defp do_from_json(registration_data) do
     registration_data
     |> Utils.b64_decode()
     |> from_binary()
