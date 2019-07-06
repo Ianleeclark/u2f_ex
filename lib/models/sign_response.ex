@@ -110,8 +110,6 @@ defmodule U2FEx.SignResponse do
              | :u2f_configuration_unsupported
              | :u2f_device_ineligible
              | :u2f_timeout}
-  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
-
   defp do_from_json(%{
          "signatureData" => s,
          "clientData" => c,
@@ -122,4 +120,7 @@ defmodule U2FEx.SignResponse do
     key_handle = Utils.b64_decode(k)
     from_binary(key_handle, client_data, signature_data)
   end
+
+  defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
+
 end
