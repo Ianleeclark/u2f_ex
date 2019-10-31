@@ -13,7 +13,7 @@ by adding `u2f_ex` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:u2f_ex, "~> 0.4.0"}
+    {:u2f_ex, "~> 0.4.1"}
   ]
 end
 ```
