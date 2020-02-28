@@ -2,8 +2,8 @@ defmodule U2FEx do
   @moduledoc """
   Handles registration and authentication of incoming U2F requests.
   """
-  @app_id Application.get_env(:u2f_ex, :app_id)
-  @pki_storage Application.get_env(:u2f_ex, :pki_storage)
+
+  import Application, only: [get_env: 2]
 
   alias U2FEx.Utils
   alias U2FEx.Utils.{Crypto, ChallengeStore}
@@ -18,7 +18,6 @@ defmodule U2FEx do
   }
 
   @challenge_len 32
-  @pki_storage Application.get_env(:u2f_ex, :pki_storage)
 
   @doc """
   Begins a registration request by creating a challenge. You should send the resulting data to the
@@ -34,12 +33,15 @@ defmodule U2FEx do
           | {:error, :failed_to_store_challenge}
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
+    pki_storage = get_env(:u2f_ex, :pki_storage)
 
     with :ok <- GenServer.call(ChallengeStore, {:store_challenge, user_id, challenge}),
-         {:ok, registered_keys} <- @pki_storage.list_key_handles_for_user(user_id) do
+         {:ok, registered_keys} <- pki_storage.list_key_handles_for_user(user_id) do
+      app_id = get_env(:u2f_ex, :app_id)
+
       registration_request =
         challenge
-        |> RegistrationRequest.new(@app_id)
+        |> RegistrationRequest.new(app_id)
         |> RegistrationRequest.to_map(registered_keys)
 
       updated_keys =
@@ -91,16 +93,18 @@ defmodule U2FEx do
           | {:error, atom()}
   def start_authentication(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
+    pki_storage = get_env(:u2f_ex, :pki_storage)
 
     with {:ok, user_keys} when is_list(user_keys) <-
-           @pki_storage.list_key_handles_for_user(user_id) do
+           pki_storage.list_key_handles_for_user(user_id) do
+      app_id = get_env(:u2f_ex, :app_id)
       registered_keys =
         user_keys
         |> Enum.map(fn %{version: version, key_handle: handle} = key ->
           version
           |> RegisteredKey.new(
             handle,
-            Map.get(key, :app_id, @app_id),
+            Map.get(key, :app_id, app_id),
             Map.get(key, :transports, nil)
           )
         end)
@@ -126,9 +130,11 @@ defmodule U2FEx do
           | {:error, atom()}
   def finish_authentication(user_id, device_response)
       when is_binary(user_id) do
+    pki_storage = get_env(:u2f_ex, :pki_storage)
+
     with {:ok, %SignResponse{} = sign_response} <- SignResponse.from_json(device_response),
          {:ok, public_key} <-
-           @pki_storage.get_public_key_for_user(
+           pki_storage.get_public_key_for_user(
              user_id,
              sign_response.key_handle |> Utils.b64_encode()
            ),

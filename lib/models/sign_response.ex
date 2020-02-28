@@ -11,11 +11,12 @@ defmodule U2FEx.SignResponse do
           client_data: String.t()
         }
 
+  import Application, only: [get_env: 2]
+
   alias U2FEx.Errors
   alias U2FEx.Utils
 
   @counter_len 4 * 8
-  @app_id Application.get_env(:u2f_ex, :app_id)
 
   @required_keys [
     :key_handle,
@@ -47,7 +48,7 @@ defmodule U2FEx.SignResponse do
        __MODULE__,
        key_handle: key_handle,
        challenge: challenge,
-       app_id: @app_id,
+       app_id: get_env(:u2f_ex, :app_id),
        user_presence: user_presence,
        counter: counter,
        signature: signature,
