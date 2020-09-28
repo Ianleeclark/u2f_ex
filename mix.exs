@@ -10,7 +10,8 @@ defmodule U2fEx.MixProject do
       aliases: aliases(),
       deps: deps(),
       description: description(),
-      package: package()
+      package: package(),
+      preferred_cli_env: [testall: :test]
     ]
   end
 
