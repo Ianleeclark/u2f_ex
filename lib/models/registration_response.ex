@@ -28,6 +28,9 @@ defmodule U2FEx.RegistrationResponse do
           attestation_cert :: tuple(),
           signature :: binary()
         ) :: {:ok, __MODULE__.t()}
+  def new(public_key, key_handle, {:ok, attestation_cert}, signature),
+    do: new(public_key, key_handle, attestation_cert, signature)
+
   def new(public_key, key_handle, attestation_cert, signature)
       when is_binary(public_key) and is_binary(key_handle) and is_binary(signature) do
     {:ok,
@@ -56,7 +59,7 @@ defmodule U2FEx.RegistrationResponse do
     new(
       <<public_key::size(@public_key_len)>>,
       <<key_handle::size(total_key_handle_len)>>,
-      X509.from_der(certificate, :Certificate),
+      X509.Certificate.from_der(certificate, :Certificate),
       signature
     )
   end
