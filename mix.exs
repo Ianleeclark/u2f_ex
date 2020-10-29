@@ -25,7 +25,7 @@ defmodule U2fEx.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.18", only: :dev, runtime: false},
-      {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5.0", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.1"},
       {:x509, "~> 0.8.1"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false}
