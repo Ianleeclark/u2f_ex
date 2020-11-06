@@ -11,5 +11,5 @@
   "makeup": {:hex, :makeup, "1.0.5", "d5a830bc42c9800ce07dd97fa94669dfb93d3bf5fcf6ea7a0c67b2e0e4a7f26c", [:mix], [{:nimble_parsec, "~> 0.5 or ~> 1.0", [hex: :nimble_parsec, repo: "hexpm", optional: false]}], "hexpm", "cfa158c02d3f5c0c665d0af11512fed3fba0144cf1aadee0f2ce17747fba2ca9"},
   "makeup_elixir": {:hex, :makeup_elixir, "0.15.0", "98312c9f0d3730fde4049985a1105da5155bfe5c11e47bdc7406d88e01e4219b", [:mix], [{:makeup, "~> 1.0", [hex: :makeup, repo: "hexpm", optional: false]}, {:nimble_parsec, "~> 1.1", [hex: :nimble_parsec, repo: "hexpm", optional: false]}], "hexpm", "75ffa34ab1056b7e24844c90bfc62aaf6f3a37a15faa76b07bc5eba27e4a8b4a"},
   "nimble_parsec": {:hex, :nimble_parsec, "1.1.0", "3a6fca1550363552e54c216debb6a9e95bd8d32348938e13de5eda962c0d7f89", [:mix], [], "hexpm", "08eb32d66b706e913ff748f11694b17981c0b04a33ef470e33e11b3d3ac8f54b"},
-  "x509": {:hex, :x509, "0.8.1", "901a72cb715aeb2f21739425cc0cff97ce975b6267811acb1fcee4ff10e7799c", [:mix], [], "hexpm", "30c6d9376c90c74490c80befea53cc0d07f05d48bb4ce9e472573a06b0aae008"},
+  "x509": {:hex, :x509, "0.8.2", "27b11ae9637dc5cfea18e6547c4c5a0fce8af024851260223d00fe0755dcf372", [:mix], [], "hexpm", "36b92a8305d034b6e1819b61890676beaba221692065e30611d0c92e8a978c7c"},
 }
