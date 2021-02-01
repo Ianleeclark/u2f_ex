@@ -82,7 +82,7 @@ defmodule U2FEx do
           {:ok,
            auth_request :: %{
              required(:challenge) => String.t(),
-             required(:registered_keys) => [map()]
+             required(:registeredKeys) => [map()]
            }}
           | {:error, atom()}
   def start_authentication(user_id) when is_binary(user_id) do
