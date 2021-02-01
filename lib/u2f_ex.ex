@@ -24,13 +24,7 @@ defmodule U2FEx do
   u2f device.
   """
   @spec start_registration(user_id :: String.t()) ::
-          {:ok,
-           registration_request :: %{
-             required(:version) => String.t(),
-             required(:challenge) => String.t(),
-             required(:appId) => String.t()
-           }}
-          | {:error, :failed_to_store_challenge}
+          {:ok, map()} | {:error, :failed_to_store_challenge}
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
     pki_storage = get_env(:u2f_ex, :pki_storage)
