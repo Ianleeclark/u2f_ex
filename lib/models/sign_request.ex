@@ -36,7 +36,7 @@ defmodule U2FEx.SignRequest do
 
   @spec to_map(__MODULE__.t()) :: %{
           required(:challenge) => String.t(),
-          required(:registered_keys) => [map()]
+          required(:registeredKeys) => [map()]
         }
   def to_map(%__MODULE__{challenge: challenge, registered_keys: registered_keys}) do
     %{

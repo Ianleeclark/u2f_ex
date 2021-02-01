@@ -98,6 +98,7 @@ defmodule U2FEx do
     with {:ok, user_keys} when is_list(user_keys) <-
            pki_storage.list_key_handles_for_user(user_id) do
       app_id = get_env(:u2f_ex, :app_id)
+
       registered_keys =
         user_keys
         |> Enum.map(fn %{version: version, key_handle: handle} = key ->
