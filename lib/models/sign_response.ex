@@ -123,5 +123,4 @@ defmodule U2FEx.SignResponse do
   end
 
   defp do_from_json(%{"errorCode" => error}), do: Errors.get_retval_from_error(error)
-
 end

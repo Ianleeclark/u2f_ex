@@ -24,13 +24,7 @@ defmodule U2FEx do
   u2f device.
   """
   @spec start_registration(user_id :: String.t()) ::
-          {:ok,
-           registration_request :: %{
-             required(:version) => String.t(),
-             required(:challenge) => String.t(),
-             required(:appId) => String.t()
-           }}
-          | {:error, :failed_to_store_challenge}
+          {:ok, map()} | {:error, :failed_to_store_challenge}
   def start_registration(user_id) when is_binary(user_id) do
     challenge = Crypto.generate_challenge(@challenge_len)
     pki_storage = get_env(:u2f_ex, :pki_storage)
@@ -88,7 +82,7 @@ defmodule U2FEx do
           {:ok,
            auth_request :: %{
              required(:challenge) => String.t(),
-             required(:registered_keys) => [map()]
+             required(:registeredKeys) => [map()]
            }}
           | {:error, atom()}
   def start_authentication(user_id) when is_binary(user_id) do
@@ -98,6 +92,7 @@ defmodule U2FEx do
     with {:ok, user_keys} when is_list(user_keys) <-
            pki_storage.list_key_handles_for_user(user_id) do
       app_id = get_env(:u2f_ex, :app_id)
+
       registered_keys =
         user_keys
         |> Enum.map(fn %{version: version, key_handle: handle} = key ->

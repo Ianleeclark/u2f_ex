@@ -8,6 +8,13 @@ defmodule U2FEx.RegisteredKey do
           transports: [map()]
         }
 
+  @type stripped_to_map() :: %{
+          required(:version) => String.t(),
+          required(:key_handle) => b64_string,
+          required(:app_id) => String.t(),
+          optional(:transport) => [any()]
+        }
+
   @required_keys [:version, :key_handle, :app_id, :transports]
   defstruct @required_keys
 
@@ -27,13 +34,12 @@ defmodule U2FEx.RegisteredKey do
     )
   end
 
-  @spec to_map(__MODULE__.t()) :: %{
+  @spec to_map(__MODULE__.t() | __MODULE__.stripped_to_map()) :: %{
           required(:version) => String.t(),
           required(:keyHandle) => b64_string,
           required(:appId) => String.t(),
-          required(:transports) => [any()]
+          optional(:transports) => [any()]
         }
-
   def to_map(%{version: version, key_handle: kh, app_id: appId}) do
     %{version: version, keyHandle: kh, appId: appId}
   end
